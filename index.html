@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sistem Daftar Surat</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#7a1f2b">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/icon-32.png">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="POS PERZIM">
+<style>
+:root{--pri:#7a1f2b;--pri2:#5c1620;--bg:#f4f1ec;--card:#fff;--line:#ddd6cc;--txt:#2a2420;--mut:#7a7068;--ok:#2e7d4f;--warn:#b7791f;--bad:#c0392b;--blue:#2b5c8a}
+*{box-sizing:border-box}
+body{margin:0;font-family:"Segoe UI",Tahoma,Arial,sans-serif;background:var(--bg);color:var(--txt);font-size:14px}
+header{background:var(--pri);color:#fff;padding:14px 20px}
+header h1{font-size:19px;margin:0}
+header .org{font-size:12px;opacity:.85;margin-top:2px}
+nav{display:flex;gap:2px;background:var(--pri2);padding:0 12px;flex-wrap:wrap}
+nav button{background:none;border:0;color:#f3dfe2;padding:11px 16px;cursor:pointer;font-size:14px;border-bottom:3px solid transparent}
+nav button.on{color:#fff;border-bottom-color:#f0c35a;font-weight:600}
+main{padding:18px;max-width:1350px;margin:0 auto}
+h2{font-size:17px;margin:0 0 12px}
+h3{font-size:14px;margin:16px 0 8px;color:var(--pri);border-bottom:1px solid var(--line);padding-bottom:4px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:16px;margin-bottom:16px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin-bottom:16px}
+.stat{background:#fff;border:1px solid var(--line);border-radius:8px;padding:14px;border-left:4px solid var(--pri)}
+.stat span{color:var(--mut);font-size:12px}
+.stat b{display:block;font-size:26px;margin-top:4px}
+.stat.bad{border-left-color:var(--bad)}.stat.warn{border-left-color:var(--warn)}.stat.ok{border-left-color:var(--ok)}.stat.blue{border-left-color:var(--blue)}
+.bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px}
+input,select,textarea{font:inherit;padding:7px 9px;border:1px solid #c9c0b4;border-radius:5px;background:#fff;color:var(--txt)}
+textarea{resize:vertical;min-height:60px}
+.btn{background:var(--pri);color:#fff;border:0;border-radius:5px;padding:8px 14px;cursor:pointer;font:inherit}
+.btn:hover{background:var(--pri2)}
+.btn.sec{background:#fff;color:var(--pri);border:1px solid var(--pri)}
+.btn.sm{padding:3px 9px;font-size:12px}
+.btn.del{background:var(--bad)}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th,td{border-bottom:1px solid var(--line);padding:7px 8px;text-align:left;vertical-align:top}
+th{background:#efe9e1;font-weight:600;white-space:nowrap}
+tbody tr:hover td{background:#faf7f2}
+tr.lewat td{background:#fdecea!important}
+.tbl-wrap{overflow-x:auto}
+.num{text-align:right}
+.tag{display:inline-block;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600;white-space:nowrap;margin:1px 0}
+.t-Baru{background:#e3ecf6;color:var(--blue)}.t-Diagihkan{background:#ede4f5;color:#6a3d8f}
+.t-Dalam{background:#fdf1dc;color:var(--warn)}.t-Selesai{background:#e1f2e8;color:var(--ok)}
+.t-lewat{background:var(--bad);color:#fff}.t-Sulit{background:#fbe1df;color:var(--bad)}.t-Terhad{background:#fdf1dc;color:var(--warn)}
+.mut{color:var(--mut);font-size:12px}
+.empty{text-align:center;color:var(--mut);padding:30px}
+.modal{position:fixed;inset:0;background:rgba(30,20,20,.5);display:flex;align-items:flex-start;justify-content:center;padding:30px 12px;overflow-y:auto;z-index:50}
+.hidden{display:none!important}
+.mbox{background:#fff;border-radius:10px;width:100%;max-width:760px;padding:20px}
+.mhead{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.mhead h2{margin:0}
+.x{background:none;border:0;font-size:26px;cursor:pointer;color:var(--mut)}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px 14px}
+.grid label{display:flex;flex-direction:column;gap:4px;font-size:12px;font-weight:600;color:#4a413a}
+.grid .full{grid-column:1/-1}
+@media(max-width:600px){.grid{grid-template-columns:1fr}}
+.mfoot{display:flex;gap:8px;margin-top:18px}
+.lamp{display:flex;align-items:center;gap:8px;padding:5px 8px;background:#f7f3ee;border-radius:5px;margin-bottom:4px;font-size:13px}
+.lamp a{color:var(--blue);cursor:pointer;flex:1;word-break:break-all}
+#toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#2a2420;color:#fff;padding:10px 18px;border-radius:6px;opacity:0;transition:opacity .3s;pointer-events:none;z-index:99}
+#toast.show{opacity:1}
+.rpt h1{font-size:16px;text-align:center;margin:0}
+.rpt .sub{text-align:center;margin:4px 0 12px;font-size:13px}
+.rpt table th,.rpt table td{border:1px solid #999;padding:4px 6px;font-size:11.5px}
+.rpt table th{background:#eee}
+.rpt .sum{margin-top:14px;width:auto;min-width:320px}
+.slip{font-size:13px}
+.slip table td,.slip table th{border:1px solid #999;padding:6px}
+.slip .minit td{height:60px}
+.hakcipta{text-align:center;color:var(--mut);font-size:12px;padding:10px 12px 22px}
+.cetak-hc{text-align:center;font-size:10px;color:#555;margin-top:16px;border-top:1px solid #ccc;padding-top:6px}
+#printZone{display:none}
+/* ---- Lampiran A: Senarai Penghantaran Pos (ikut format SOP, cetakan potret) ---- */
+.lampA{font-family:Calibri,Carlito,Arial,Helvetica,sans-serif;font-size:11pt;color:#000;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.lampA .la-tajuk{text-align:center;font-weight:700;line-height:1.35;padding-bottom:10px;border-bottom:1px solid #000;margin-bottom:14px}
+.lampA .la-tajuk .t1{font-size:14pt}.lampA .la-tajuk .t2{font-size:12pt}.lampA .la-tajuk .t3{font-size:10pt}
+.lampA .la-info{display:grid;grid-template-columns:1fr 1fr;gap:12px 30px;margin-bottom:16px;font-size:11pt}
+.lampA .la-info .baris{display:flex;align-items:flex-end;gap:6px}
+.lampA .la-info .lbl{white-space:nowrap}
+.lampA .la-info .isi{flex:1;border-bottom:1px solid #000;min-height:18px;padding:0 4px}
+.lampA table.la-jadual{width:100%;border-collapse:collapse;table-layout:fixed}
+.lampA .la-jadual th,.lampA .la-jadual td{border:1px solid #ccc;padding:4px 6px;font-size:10pt;line-height:1.3;vertical-align:top;word-wrap:break-word;overflow-wrap:anywhere}
+.lampA .la-jadual th{background:#2e75b6;color:#fff;text-align:center;font-weight:700;border-color:#2e75b6}
+.lampA .la-jadual td{background:#fff!important}
+.lampA .la-jadual td.c{text-align:center}
+.lampA .la-jadual tr.kosong td{height:26px}
+.lampA .la-jadual thead{display:table-header-group}
+.lampA .la-jadual tr{page-break-inside:avoid;break-inside:avoid}
+.lampA .la-sah{display:grid;grid-template-columns:1fr 1fr;gap:30px;margin-top:20px;page-break-inside:avoid;break-inside:avoid}
+.lampA .la-sah b{display:block;margin-bottom:10px}
+.lampA .la-sah .baris{display:flex;align-items:flex-end;gap:6px;margin-bottom:8px}
+.lampA .la-sah .baris span{white-space:nowrap}
+.lampA .la-sah .baris i{flex:1;border-bottom:1px solid #000;max-width:210px;min-height:16px;font-style:normal;padding:0 4px}
+.lampA .la-sah .baris.ttg i{height:40px}
+.laPrev{background:#fff;padding:14px;border:1px solid #ddd;overflow-x:auto}
+@media (max-width:640px){
+ .laPrev{padding:10px}
+ .laPrev .lampA{font-size:9pt}
+ .laPrev .la-info,.laPrev .la-sah{grid-template-columns:1fr;gap:8px}
+ .laPrev .la-jadual th,.laPrev .la-jadual td{font-size:8pt;padding:3px}
+ .laPrev .la-jadual col:nth-child(1){width:9%!important}
+}
+.lampA+.cetak-hc{margin-top:6px;padding-top:3px;font-size:8pt}
+.lock{position:fixed;inset:0;background:linear-gradient(160deg,var(--pri),var(--pri2));display:flex;align-items:center;justify-content:center;z-index:200;padding:16px}
+.lockbox{background:#fff;border-radius:12px;padding:28px;width:100%;max-width:360px;text-align:center}
+.lockbox h2{color:var(--pri);margin-bottom:4px}
+.lockbox a{color:var(--blue)}
+.err{color:var(--bad);font-size:13px;min-height:18px;margin-top:6px}
+@page{size:A4 landscape;margin:12mm}
+@media print{
+ body.printing>*:not(#printZone){display:none!important}
+ body.printing #printZone{display:block}
+ body{background:#fff}
+ tr{page-break-inside:avoid}
+}
+</style>
+</head>
+<body>
+<header>
+ <h1>Sistem Daftar Surat Keluar</h1>
+ <div class="org" id="orgName"></div>
+</header>
+<nav id="nav">
+ <button data-tab="utama" class="on">Papan Utama</button>
+ <button data-tab="keluar">Surat Keluar</button>
+ <button data-tab="laporan">Laporan</button>
+ <button data-tab="tetapan">Tetapan &amp; Sandaran</button>
+ <button data-act="kunci" style="margin-left:auto">🔒 Kunci</button>
+</nav>
+<main id="main"></main>
+<div id="lock" class="lock hidden"></div>
+<footer class="hakcipta">&copy; 2026 Abu Hanifah bin Rozali. Hak cipta terpelihara.</footer>
+
+<div id="modal" class="modal hidden"><div class="mbox"><div class="mhead"><h2 id="mTitle"></h2><button class="x" onclick="closeModal()">&times;</button></div><div id="mBody"></div></div></div>
+<datalist id="dlBahagian"></datalist><datalist id="dlPenghantar"></datalist>
+<div id="toast"></div>
+<div id="printZone"></div>
+
+<script>
+const KAEDAH=['Pos Biasa','Pos Berdaftar','Pos Laju','Pos Frangking','Kurier','Serahan Tangan','Emel','Faks'];
+const KLAS=['Biasa','Terhad','Sulit'];
+const STATUS=['Baru','Diagihkan','Dalam Tindakan','Selesai'];
+const BULAN=['Januari','Februari','Mac','April','Mei','Jun','Julai','Ogos','September','Oktober','November','Disember'];
+let db,cache=[],tetapan={key:'main',org:'Perbadanan Muzium Melaka',bahagian:[],penghantar:[],bahagianLalai:'',lastBackup:null};
+let tab='utama',formState=null,lastReport='',lastKos='',lastBil=0;
+const flt={masuk:{q:'',status:'',klas:'',bulan:'',kaedah:''},keluar:{q:'',klas:'',bulan:'',kaedah:''}};
+
+/* ---------- IndexedDB ---------- */
+function openDB(){return new Promise((res,rej)=>{const r=indexedDB.open('daftarSuratPERZIM',1);
+ r.onupgradeneeded=()=>{const d=r.result;d.createObjectStore('surat',{keyPath:'id'});d.createObjectStore('fail',{keyPath:'id'});d.createObjectStore('tetapan',{keyPath:'key'});};
+ r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error);});}
+function tx(store,mode,fn){return new Promise((res,rej)=>{const t=db.transaction(store,mode);const r=fn(t.objectStore(store));let out;
+ if(r)r.onsuccess=()=>{out=r.result};t.oncomplete=()=>res(out);t.onerror=()=>rej(t.error);});}
+const getAll=st=>tx(st,'readonly',s=>s.getAll());
+const getOne=(st,k)=>tx(st,'readonly',s=>s.get(k));
+const put=(st,v)=>tx(st,'readwrite',s=>s.put(v));
+const del=(st,k)=>tx(st,'readwrite',s=>s.delete(k));
+const clearSt=st=>tx(st,'readwrite',s=>s.clear());
+
+/* ---------- Utiliti ---------- */
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,7);
+const today=()=>{const d=new Date();return new Date(d-d.getTimezoneOffset()*60000).toISOString().slice(0,10)};
+const fmt=d=>d?d.split('-').reverse().join('/'):'';
+const namaBulan=m=>m?BULAN[+m.slice(5,7)-1]+' '+m.slice(0,4):'';
+const rm=n=>'RM '+(Number(n)||0).toFixed(2);
+const isLewat=s=>s.jenis==='masuk'&&s.status!=='Selesai'&&s.tarikhAkhir&&s.tarikhAkhir<today();
+const nl=s=>esc(s).replace(/\n/g,'<br>');
+function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),2200);}
+function tagStatus(s){return `<span class="tag t-${s.status.split(' ')[0]}">${esc(s.status)}</span>`+(isLewat(s)?' <span class="tag t-lewat">Lewat</span>':'');}
+const tagKlas=k=>k&&k!=='Biasa'?`<span class="tag t-${k}">${esc(k)}</span>`:esc(k||'');
+const opts=(arr,v,blank)=>(blank!==undefined?`<option value="">${blank}</option>`:'')+arr.map(o=>`<option${o===v?' selected':''}>${esc(o)}</option>`).join('');
+function download(name,blob){const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500);}
+const blobToDataURL=b=>new Promise(r=>{const f=new FileReader();f.onload=()=>r(f.result);f.readAsDataURL(b)});
+function dataURLtoBlob(u){const [h,d]=u.split(',');const type=(h.match(/data:([^;]*)/)||[])[1]||'';const bin=atob(d);const a=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)a[i]=bin.charCodeAt(i);return new Blob([a],{type});}
+function cetak(html,potret){
+ // potret=true hanya untuk Lampiran A; laporan/slip lain kekal landskap seperti asal
+ const lama=document.getElementById('pgPotret');if(lama)lama.remove();
+ if(potret){const st=document.createElement('style');st.id='pgPotret';st.textContent='@page{size:A4 portrait;margin:12mm 14mm 12mm 14mm}';document.head.appendChild(st);}
+ $('#printZone').innerHTML=html+(potret?'':'<div class="cetak-hc">Sistem Daftar Surat &copy; 2026 Abu Hanifah bin Rozali. Hak cipta terpelihara.</div>');document.body.classList.add('printing');
+ const siap=()=>{window.removeEventListener('afterprint',siap);document.body.classList.remove('printing');const p=document.getElementById('pgPotret');if(p)p.remove();};
+ window.addEventListener('afterprint',siap);
+ setTimeout(()=>window.print(),100);
+}
+
+async function loadCache(){cache=await getAll('surat');}
+async function saveTetapan(){await put('tetapan',tetapan);applyTetapan();}
+function applyTetapan(){$('#orgName').textContent=tetapan.org;$('#dlBahagian').innerHTML=tetapan.bahagian.map(b=>`<option value="${esc(b)}">`).join('');$('#dlPenghantar').innerHTML=(tetapan.penghantar||[]).map(b=>`<option value="${esc(b)}">`).join('');}
+
+/* ---------- Navigasi ---------- */
+$('#nav').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;if(b.dataset.act==='kunci'){tunjukKunci();return;}tab=b.dataset.tab;
+ document.querySelectorAll('#nav button').forEach(x=>x.classList.toggle('on',x===b));render();});
+function render(){({utama:renderUtama,masuk:()=>renderSenarai('masuk'),keluar:()=>renderSenarai('keluar'),laporan:renderLaporan,tetapan:renderTetapan})[tab]();}
+function refresh(){if(tab==='masuk'||tab==='keluar')refreshTable(tab);else render();}
+
+/* ---------- Papan Utama ---------- */
+function renderUtama(){
+ const bln=today().slice(0,7),thn=bln.slice(0,4);
+ const keluar=cache.filter(s=>s.jenis==='keluar');
+ const kBln=keluar.filter(s=>(s.tarikhHantar||'').startsWith(bln));
+ const kThn=keluar.filter(s=>(s.tarikhHantar||'').startsWith(thn));
+ const kos=kBln.reduce((a,s)=>a+(Number(s.kos)||0),0),kosT=kThn.reduce((a,s)=>a+(Number(s.kos)||0),0);
+ const kel=new Set(kBln.filter(s=>s.kelompokId).map(s=>s.kelompokId)).size;
+ const baru=keluar.slice().sort((a,b)=>(b.tarikhHantar||'').localeCompare(a.tarikhHantar||'')||b.dibuat-a.dibuat).slice(0,15);
+ const bk=tetapan.lastBackup?fmt(tetapan.lastBackup.slice(0,10)):'belum pernah';
+ const nb=BULAN[+bln.slice(5)-1];
+ $('#main').innerHTML=`
+ <div class="bar"><button class="btn" onclick="openForm('keluar')">+ Daftar Surat Keluar</button><button class="btn sec" onclick="openKelompok()">+ Daftar Kelompok</button><button class="btn sec" onclick="cetakLampiranA(cache.filter(s=>s.jenis==='keluar'&&s.tarikhHantar===today()).sort((a,b)=>a.dibuat-b.dibuat))">Cetak Lampiran A (Hari Ini)</button>
+ <span class="mut" style="margin-left:auto">Sandaran terakhir: <b>${bk}</b></span></div>
+ <div class="stats">
+  <div class="stat blue"><span>Surat keluar (${nb})</span><b>${kBln.length}</b></div>
+  <div class="stat"><span>Kelompok (${nb})</span><b>${kel}</b></div>
+  <div class="stat ok"><span>Kos pos (${nb})</span><b style="font-size:20px">${rm(kos)}</b></div>
+  <div class="stat warn"><span>Kos pos tahun ${thn}</span><b style="font-size:20px">${rm(kosT)}</b></div>
+ </div>
+ <div class="card"><h2>Surat Keluar Terkini</h2>${baru.length?`<div class="tbl-wrap"><table><thead><tr><th>Tarikh Hantar</th><th>No. Rujukan</th><th>Penerima</th><th>Perkara</th><th>Kaedah</th><th class="num">Kos (RM)</th></tr></thead><tbody>
+ ${baru.map(s=>`<tr style="cursor:pointer" onclick="openForm('keluar','${s.id}')"><td>${fmt(s.tarikhHantar)}</td><td>${esc(s.noRuj)}</td><td>${esc(s.penerima)}</td><td>${esc(s.perkara)}</td><td>${esc(s.kaedah)}</td><td class="num">${kosTxt(s)}</td></tr>`).join('')}
+ </tbody></table></div>`:'<div class="empty">Belum ada surat keluar didaftarkan.</div>'}</div>`;
+}
+
+/* ---------- Senarai ---------- */
+function renderSenarai(j){
+ const f=flt[j];
+ $('#main').innerHTML=`<div class="card"><h2>Surat ${j==='masuk'?'Masuk':'Keluar'}</h2>
+ <div class="bar">
+  <button class="btn" onclick="openForm('${j}')">+ Daftar Baru</button>${j==='keluar'?'<button class="btn sec" onclick="openKelompok()">+ Daftar Kelompok</button>':''}
+  <input id="fq" placeholder="Cari rujukan, ${j==='masuk'?'pengirim':'penerima'}, perkara..." style="flex:1;min-width:200px" value="${esc(f.q)}">
+  ${j==='masuk'?`<select id="fstatus">${opts([...STATUS,'Lewat'],f.status,'Semua status')}</select>`:''}
+  <select id="fklas">${opts(KLAS,f.klas,'Semua klasifikasi')}</select>
+  <select id="fkaedah">${opts(KAEDAH,f.kaedah,'Semua kaedah')}</select>
+  <input type="month" id="fbulan" value="${f.bulan}" title="Tapis bulan">
+  <button class="btn sec" onclick="eksportCSV('${j}')">Eksport Excel (CSV)</button>
+ </div><div id="tbl"></div></div>`;
+ const upd=()=>{f.q=$('#fq').value;f.klas=$('#fklas').value;f.kaedah=$('#fkaedah').value;f.bulan=$('#fbulan').value;if(j==='masuk')f.status=$('#fstatus').value;refreshTable(j);};
+ ['#fq','#fklas','#fkaedah','#fbulan','#fstatus'].forEach(id=>{const el=$(id);if(el)el.addEventListener('input',upd);});
+ refreshTable(j);
+}
+function tapis(j){
+ const f=flt[j],key=j==='masuk'?'tarikhTerima':'tarikhHantar';
+ let r=cache.filter(s=>s.jenis===j);
+ if(f.q){const q=f.q.toLowerCase();r=r.filter(s=>Object.values(s).filter(v=>typeof v==='string').join(' ').toLowerCase().includes(q));}
+ if(f.status)r=f.status==='Lewat'?r.filter(isLewat):r.filter(s=>s.status===f.status);
+ if(f.klas)r=r.filter(s=>s.klasifikasi===f.klas);
+ if(f.kaedah)r=r.filter(s=>s.kaedah===f.kaedah);
+ if(f.bulan)r=r.filter(s=>(s[key]||'').startsWith(f.bulan));
+ return r.sort((a,b)=>(b[key]||'').localeCompare(a[key]||'')||b.dibuat-a.dibuat);
+}
+function refreshTable(j){
+ const r=tapis(j),el=$('#tbl');if(!el)return;
+ if(!r.length){el.innerHTML='<div class="empty">Tiada rekod.</div>';return;}
+ const lp=s=>s.lampiran&&s.lampiran.length?'📎'+s.lampiran.length:'';
+ if(j==='masuk'){
+  el.innerHTML=`<div class="tbl-wrap"><table><thead><tr><th>Bil</th><th>Tarikh Terima</th><th>No. Rujukan</th><th>Pengirim</th><th>Perkara</th><th>Klas.</th><th>Kaedah</th><th>Agih Kepada</th><th>Tarikh Akhir</th><th>Status</th><th></th><th></th></tr></thead><tbody>
+  ${r.map((s,i)=>`<tr class="${isLewat(s)?'lewat':''}"><td>${i+1}</td><td>${fmt(s.tarikhTerima)}</td><td>${esc(s.noRujDalaman)}${s.noRujPengirim?`<div class="mut">Pengirim: ${esc(s.noRujPengirim)}</div>`:''}</td><td>${esc(s.pengirim)}</td><td>${esc(s.perkara)}</td><td>${tagKlas(s.klasifikasi)}</td><td>${esc(s.kaedah)}</td><td>${esc(s.agihKepada)}</td><td>${fmt(s.tarikhAkhir)}</td><td>${tagStatus(s)}</td><td>${lp(s)}</td>
+  <td style="white-space:nowrap"><button class="btn sm" onclick="openForm('masuk','${s.id}')">Buka</button> <button class="btn sm sec" onclick="cetakSlip('${s.id}')">Slip</button></td></tr>`).join('')}
+  </tbody></table></div><p class="mut">${r.length} rekod</p>`;
+ }else{
+  const kos=r.reduce((a,s)=>a+(Number(s.kos)||0),0);
+  el.innerHTML=`<div class="tbl-wrap"><table><thead><tr><th>Bil</th><th>Tarikh Hantar</th><th>No. Rujukan</th><th>Penerima</th><th>Perkara</th><th>Klas.</th><th>Kaedah</th><th>No. Tracking</th><th class="num">Kos (RM)</th><th></th><th></th></tr></thead><tbody>
+  ${r.map((s,i)=>`<tr><td>${i+1}</td><td>${fmt(s.tarikhHantar)}</td><td>${esc(s.noRuj)}</td><td>${esc(s.penerima)}${s.kelompokId?`<div><span class="tag t-Diagihkan" style="cursor:pointer" title="Lihat kelompok" onclick="lihatKelompok('${s.kelompokId}')">📦 ${esc(s.kelompokNama)}</span></div>`:''}</td><td>${esc(s.perkara)}</td><td>${tagKlas(s.klasifikasi)}</td><td>${esc(s.kaedah)}</td><td>${esc(s.noTracking)}</td><td class="num">${s.kos!==''&&s.kos!=null?(+s.kos).toFixed(2):''}</td><td>${lp(s)}</td>
+  <td style="white-space:nowrap"><button class="btn sm" onclick="openForm('keluar','${s.id}')">Buka</button> <button class="btn sm sec" title="${s.kelompokId?'Cetak Lampiran A bagi keseluruhan kelompok ini':'Cetak Lampiran A bagi surat ini'}" onclick="cetakLampiranASurat('${s.id}')">Lampiran A</button></td></tr>`).join('')}
+  </tbody></table></div><p class="mut">${r.length} rekod &middot; Jumlah kos: <b>${rm(kos)}</b></p>`;
+ }
+}
+
+/* ---------- Borang ---------- */
+function openForm(j,id){
+ const s=id?cache.find(x=>x.id===id):null;
+ const d=s?{...s}:{jenis:j,klasifikasi:'Biasa',kaedah:'Pos Biasa',status:'Baru',lampiran:[]};
+ if(!s){if(j==='masuk')d.tarikhTerima=today();else{d.tarikhHantar=today();d.disediakan=tetapan.bahagianLalai||'';}}
+ formState={jenis:j,id:s?s.id:null,lampiran:[...(d.lampiran||[])],pending:[],removed:[]};
+ const v=k=>esc(d[k]??'');
+ const sel=(n,arr)=>`<select name="${n}">${opts(arr,d[n])}</select>`;
+ let h='<form id="frm" onsubmit="return saveForm(event)"><div class="grid">';
+ if(j==='masuk'){
+  h+=`<label>No. Rujukan Kami<input name="noRujDalaman" value="${v('noRujDalaman')}"></label>
+  <label>No. Rujukan Pengirim<input name="noRujPengirim" value="${v('noRujPengirim')}"></label>
+  <label>Tarikh Surat<input type="date" name="tarikhSurat" value="${v('tarikhSurat')}"></label>
+  <label>Tarikh Terima *<input type="date" name="tarikhTerima" value="${v('tarikhTerima')}" required></label>
+  <label class="full">Pengirim *<input name="pengirim" value="${v('pengirim')}" required></label>
+  <label class="full">Perkara *<textarea name="perkara" required>${v('perkara')}</textarea></label>
+  <label>Klasifikasi${sel('klasifikasi',KLAS)}</label>
+  <label>Kaedah Terima${sel('kaedah',KAEDAH)}</label>
+  </div><h3>Agihan &amp; Tindakan</h3><div class="grid">
+  <label>Agih Kepada (bahagian/pegawai)<input name="agihKepada" list="dlBahagian" value="${v('agihKepada')}"></label>
+  <label>Tarikh Agih<input type="date" name="tarikhAgih" value="${v('tarikhAgih')}"></label>
+  <label>Status${sel('status',STATUS)}</label>
+  <label>Tarikh Akhir Tindakan<input type="date" name="tarikhAkhir" value="${v('tarikhAkhir')}"></label>
+  <label>Tarikh Selesai<input type="date" name="tarikhSelesai" value="${v('tarikhSelesai')}"></label>
+  <label class="full">Catatan / Minit<textarea name="catatan">${v('catatan')}</textarea></label>`;
+ }else{
+  h+=`<label>No. Rujukan<input name="noRuj" value="${v('noRuj')}"></label>
+  <label>Tarikh Surat<input type="date" name="tarikhSurat" value="${v('tarikhSurat')}"></label>
+  <label>Tarikh Hantar *<input type="date" name="tarikhHantar" value="${v('tarikhHantar')}" required></label>
+  <label>Nama Penghantar<input name="namaPenghantar" list="dlPenghantar" value="${v('namaPenghantar')}" autocomplete="off"></label>
+  <label>Bahagian<input name="disediakan" list="dlBahagian" value="${v('disediakan')}" autocomplete="off"></label>
+  <span></span>
+  <label class="full">Penerima *<input name="penerima" value="${v('penerima')}" required></label>
+  <label class="full">Alamat<textarea name="alamat">${v('alamat')}</textarea></label>
+  <label class="full">Perkara *<textarea name="perkara" required>${v('perkara')}</textarea></label>
+  <label>Klasifikasi${sel('klasifikasi',KLAS)}</label>
+  <label>Kaedah Hantar${sel('kaedah',KAEDAH)}</label>
+  <label>No. Tracking / Pendaftaran<input name="noTracking" value="${v('noTracking')}"></label>
+  <label>Kos Pos (RM)<input type="number" step="0.01" min="0" name="kos" value="${v('kos')}"></label>
+  <label class="full">Catatan<textarea name="catatan">${v('catatan')}</textarea></label>`;
+ }
+ h+=`</div><h3>Lampiran (imbasan surat)</h3><div id="lampList"></div>
+ <input type="file" id="fileIn" multiple accept=".pdf,image/*,.doc,.docx,.xls,.xlsx" onchange="addFiles(this)">
+ <div class="mfoot">${s?`<button type="button" class="btn del" onclick="hapus('${s.id}')">Padam</button>`:''}${s&&j==='keluar'?`<button type="button" class="btn sec" onclick="cetakLampiranASurat('${s.id}')">Cetak Lampiran A${s.kelompokId?' (Kelompok)':''}</button>`:''}<span style="flex:1"></span>
+ <button type="button" class="btn sec" onclick="closeModal()">Batal</button><button class="btn">Simpan</button></div></form>`;
+ $('#mTitle').textContent=(s?'Kemaskini':'Daftar')+' Surat '+(j==='masuk'?'Masuk':'Keluar');
+ $('#mBody').innerHTML=h;$('#modal').classList.remove('hidden');renderLamp();
+}
+function closeModal(){$('#modal').classList.add('hidden');formState=null;}
+function renderLamp(){
+ const L=formState.lampiran.map((l,i)=>`<div class="lamp"><a onclick="bukaFail('${l.id}')">${esc(l.name)}</a><span class="mut">${(l.size/1024).toFixed(0)} KB</span><button type="button" class="btn sm del" onclick="buangLamp(${i})">Buang</button></div>`);
+ const P=formState.pending.map((f,i)=>`<div class="lamp"><span style="flex:1">${esc(f.name)} <span class="mut">(baru)</span></span><button type="button" class="btn sm del" onclick="buangPending(${i})">Buang</button></div>`);
+ $('#lampList').innerHTML=L.concat(P).join('')||'<p class="mut">Tiada lampiran.</p>';
+}
+function addFiles(inp){formState.pending.push(...inp.files);inp.value='';renderLamp();}
+function buangLamp(i){formState.removed.push(formState.lampiran[i].id);formState.lampiran.splice(i,1);renderLamp();}
+function buangPending(i){formState.pending.splice(i,1);renderLamp();}
+async function bukaFail(id){
+ const f=await getOne('fail',id);if(!f){toast('Fail tidak dijumpai');return;}
+ const url=URL.createObjectURL(f.blob);
+ if(/pdf|image/.test(f.type))window.open(url,'_blank');else{const a=document.createElement('a');a.href=url;a.download=f.name;a.click();}
+ setTimeout(()=>URL.revokeObjectURL(url),60000);
+}
+async function saveForm(e){
+ e.preventDefault();
+ const o={};for(const [k,val] of new FormData(e.target).entries())o[k]=String(val).trim();
+ const old=formState.id?cache.find(x=>x.id===formState.id):null;
+ const rec={...(old||{}),...o,jenis:formState.jenis,id:formState.id||uid(),dibuat:old?old.dibuat:Date.now(),dikemaskini:Date.now()};
+ if(rec.jenis==='masuk'){
+  if(rec.agihKepada&&rec.status==='Baru')rec.status='Diagihkan';
+  if(rec.agihKepada&&!rec.tarikhAgih)rec.tarikhAgih=today();
+  if(rec.status==='Selesai'&&!rec.tarikhSelesai)rec.tarikhSelesai=today();
+ }else rec.kos=rec.kos===''?'':Number(rec.kos);
+ try{
+  for(const id of formState.removed)await del('fail',id);
+  const lamp=formState.lampiran.slice();
+  for(const f of formState.pending){const fid=uid();await put('fail',{id:fid,blob:f,name:f.name,type:f.type,size:f.size});lamp.push({id:fid,name:f.name,type:f.type,size:f.size});}
+  rec.lampiran=lamp;
+  await put('surat',rec);
+ }catch(err){alert('Gagal simpan: '+err);return false;}
+ await loadCache();closeModal();refresh();toast('Rekod disimpan');return false;
+}
+async function hapus(id){
+ if(!confirm('Padam rekod ini beserta lampirannya? Tindakan ini tidak boleh dibatalkan.'))return;
+ const s=cache.find(x=>x.id===id);
+ for(const l of (s.lampiran||[]))await del('fail',l.id);
+ await del('surat',id);await loadCache();closeModal();refresh();toast('Rekod dipadam');
+}
+
+/* ---------- Kelompok Surat Keluar ---------- */
+function openKelompok(){
+ $('#mTitle').textContent='Daftar Kelompok Surat Keluar';
+ $('#mBody').innerHTML=`<form id="kfrm" onsubmit="return simpanKelompok(event)">
+ <p class="mut">Isi maklumat yang sama sekali sahaja, kemudian senaraikan setiap surat di bawah.</p>
+ <div class="grid">
+  <label>Nama Kelompok<input name="nama" placeholder="cth: Jemputan Hari Muzium"></label>
+  <label>Tarikh Hantar *<input type="date" name="tarikhHantar" value="${today()}" required></label>
+  <label>Nama Penghantar<input name="namaPenghantar" list="dlPenghantar" autocomplete="off"></label>
+  <label>Bahagian<input name="disediakan" list="dlBahagian" value="${esc(tetapan.bahagianLalai||'')}" autocomplete="off"></label>
+  <label>Tarikh Surat<input type="date" name="tarikhSurat"></label>
+  <label>Kaedah Hantar<select name="kaedah">${opts(KAEDAH,'Pos Frangking')}</select></label>
+  <label>Klasifikasi<select name="klasifikasi">${opts(KLAS,'Biasa')}</select></label>
+  <label class="full">Perkara *<textarea name="perkara" required></textarea></label>
+ </div>
+ <h3>Senarai Surat</h3>
+ <div class="tbl-wrap"><table id="kTbl"><thead><tr><th>Bil</th><th>No. Rujukan</th><th>Penerima *</th><th>Alamat</th><th>No. Tracking</th><th>Kos (RM)</th><th></th></tr></thead><tbody></tbody></table></div>
+ <div class="bar" style="margin-top:8px">
+  <button type="button" class="btn sec" onclick="tambahBaris()">+ Tambah Baris</button>
+  <button type="button" class="btn sec" onclick="$('#pasteBox').classList.toggle('hidden')">Tampal dari Excel</button>
+  <span class="mut">Kos sama untuk semua: <input type="number" step="0.01" min="0" id="kosSemua" style="width:90px"> <button type="button" class="btn sm sec" onclick="isiKosSemua()">Isi</button></span>
+  <span style="margin-left:auto">Jumlah: <b id="kJum">0 surat · RM 0.00</b></span>
+ </div>
+ <div id="pasteBox" class="hidden" style="margin-top:6px">
+  <p class="mut">Salin lajur dari Excel ikut susunan: <b>No. Rujukan | Penerima | Alamat | No. Tracking | Kos</b>, kemudian tampal di sini.</p>
+  <textarea id="pasteTxt" rows="5" style="width:100%"></textarea>
+  <button type="button" class="btn sm" onclick="prosesTampal()">Masukkan ke Senarai</button>
+ </div>
+ <div class="mfoot"><span style="flex:1"></span><button type="button" class="btn sec" onclick="closeModal()">Batal</button><button class="btn">Simpan Kelompok</button></div></form>`;
+ formState={kelompok:true};
+ $('#kTbl').addEventListener('input',kiraKelompok);
+ $('#modal').classList.remove('hidden');
+ for(let i=0;i<5;i++)tambahBaris();
+}
+function tambahBaris(v={}){
+ const tr=document.createElement('tr');
+ tr.innerHTML=`<td class="bil"></td><td><input data-k="noRuj" value="${esc(v.noRuj||'')}" style="width:130px"></td><td><input data-k="penerima" value="${esc(v.penerima||'')}" style="width:180px"></td><td><textarea data-k="alamat" rows="1" style="width:220px;min-height:34px">${esc(v.alamat||'')}</textarea></td><td><input data-k="noTracking" value="${esc(v.noTracking||'')}" style="width:130px"></td><td><input data-k="kos" type="number" step="0.01" min="0" value="${esc(v.kos??'')}" style="width:80px"></td><td><button type="button" class="btn sm del" title="Buang baris" onclick="this.closest('tr').remove();kiraKelompok()">×</button></td>`;
+ $('#kTbl tbody').appendChild(tr);kiraKelompok();
+}
+function bacaBaris(){
+ return [...document.querySelectorAll('#kTbl tbody tr')].map((tr,i)=>{const o={bil:i+1};tr.querySelectorAll('[data-k]').forEach(el=>o[el.dataset.k]=el.value.trim());return o;})
+  .filter(o=>o.penerima||o.noRuj||o.alamat||o.noTracking||o.kos);
+}
+function kiraKelompok(){
+ document.querySelectorAll('#kTbl tbody tr').forEach((tr,i)=>tr.querySelector('.bil').textContent=i+1);
+ const d=bacaBaris();$('#kJum').textContent=`${d.length} surat · ${rm(d.reduce((a,r)=>a+(Number(r.kos)||0),0))}`;
+}
+function isiKosSemua(){const v=$('#kosSemua').value;document.querySelectorAll('#kTbl [data-k="kos"]').forEach(el=>el.value=v);kiraKelompok();}
+function prosesTampal(){
+ const lines=$('#pasteTxt').value.split(/\r?\n/).filter(l=>l.trim());
+ if(!lines.length){toast('Tiada data untuk ditampal');return;}
+ document.querySelectorAll('#kTbl tbody tr').forEach(tr=>{if(![...tr.querySelectorAll('[data-k]')].some(el=>el.value.trim()))tr.remove();});
+ lines.forEach(l=>{const c=l.split('\t').map(x=>x.trim());tambahBaris({noRuj:c[0],penerima:c[1],alamat:c[2],noTracking:c[3],kos:(c[4]||'').replace(/[^0-9.]/g,'')});});
+ $('#pasteTxt').value='';$('#pasteBox').classList.add('hidden');toast(lines.length+' baris dimasukkan');
+}
+async function simpanKelompok(e){
+ e.preventDefault();
+ const c={};for(const [k,v] of new FormData(e.target).entries())c[k]=String(v).trim();
+ const rows=bacaBaris();
+ if(!rows.length){alert('Sila isi sekurang-kurangnya satu surat.');return false;}
+ const x=rows.find(r=>!r.penerima);if(x){alert(`Baris ${x.bil}: Penerima wajib diisi.`);return false;}
+ const kid=uid(),now=Date.now(),nama=c.nama||('Kelompok '+fmt(c.tarikhHantar));
+ try{
+  for(let i=0;i<rows.length;i++){const r=rows[i];
+   await put('surat',{id:uid(),jenis:'keluar',noRuj:r.noRuj,tarikhSurat:c.tarikhSurat,tarikhHantar:c.tarikhHantar,disediakan:c.disediakan,namaPenghantar:c.namaPenghantar||'',penerima:r.penerima,alamat:r.alamat,perkara:c.perkara,klasifikasi:c.klasifikasi,kaedah:c.kaedah,noTracking:r.noTracking,kos:r.kos===''?'':Number(r.kos),catatan:'',lampiran:[],kelompokId:kid,kelompokNama:nama,dibuat:now+i,dikemaskini:now});}
+ }catch(err){alert('Gagal simpan: '+err);return false;}
+ await loadCache();closeModal();refresh();toast(`${rows.length} surat disimpan dalam kelompok`);return false;
+}
+const ahliKelompok=kid=>cache.filter(s=>s.kelompokId===kid).sort((a,b)=>a.dibuat-b.dibuat);
+const kosTxt=s=>s.kos!==''&&s.kos!=null?(+s.kos).toFixed(2):'';
+function lihatKelompok(kid){
+ const r=ahliKelompok(kid);if(!r.length)return;
+ const f=r[0],kos=r.reduce((a,s)=>a+(Number(s.kos)||0),0);
+ $('#mTitle').textContent='Kelompok: '+f.kelompokNama;
+ $('#mBody').innerHTML=`<p>Tarikh hantar: <b>${fmt(f.tarikhHantar)}</b> · Kaedah: <b>${esc(f.kaedah)}</b> · Penghantar: <b>${esc(f.namaPenghantar||'-')}</b> · Bahagian: <b>${esc(f.disediakan||'-')}</b><br>Perkara: ${esc(f.perkara)}</p>
+ <div class="tbl-wrap"><table><thead><tr><th>Bil</th><th>No. Rujukan</th><th>Penerima</th><th>Alamat</th><th>No. Tracking</th><th class="num">Kos (RM)</th><th></th></tr></thead><tbody>
+ ${r.map((s,i)=>`<tr><td>${i+1}</td><td>${esc(s.noRuj)}</td><td>${esc(s.penerima)}</td><td>${nl(s.alamat)}</td><td>${esc(s.noTracking)}</td><td class="num">${kosTxt(s)}</td><td><button class="btn sm" onclick="openForm('keluar','${s.id}')">Buka</button></td></tr>`).join('')}
+ </tbody></table></div><p><b>${r.length} surat · ${rm(kos)}</b></p>
+ <div class="mfoot" style="flex-wrap:wrap"><button class="btn del" onclick="padamKelompok('${kid}')">Padam Kelompok</button><span style="flex:1"></span><button class="btn sec" onclick="closeModal()">Tutup</button><button class="btn sec" onclick="cetakKelompok('${kid}')">Laporan Kos Pos</button><button class="btn" onclick="cetakLampiranAKelompok('${kid}')">Cetak Lampiran A</button></div>`;
+ formState={kelompok:true};$('#modal').classList.remove('hidden');
+}
+function cetakKelompok(kid){
+ const r=ahliKelompok(kid),f=r[0],kos=r.reduce((a,s)=>a+(Number(s.kos)||0),0);
+ cetak(`<div class="rpt"><h1>${esc(tetapan.org)}</h1><div class="sub"><b>LAPORAN KOS POS</b><br>${esc(f.kelompokNama)}</div>
+ <table style="width:auto;margin-bottom:10px"><tr><th>Tarikh Hantar</th><td>${fmt(f.tarikhHantar)}</td><th>Kaedah</th><td>${esc(f.kaedah)}</td></tr>
+ <tr><th>Penghantar / Bahagian</th><td>${esc([f.namaPenghantar,f.disediakan].filter(Boolean).join(' / '))}</td><th>Tarikh Surat</th><td>${fmt(f.tarikhSurat)}</td></tr>
+ <tr><th>Perkara</th><td colspan="3">${esc(f.perkara)}</td></tr></table>
+ <table><thead><tr><th>Bil</th><th>No. Rujukan</th><th>Penerima</th><th>Alamat</th><th>No. Tracking</th><th>Kos (RM)</th></tr></thead><tbody>
+ ${r.map((s,i)=>`<tr><td>${i+1}</td><td>${esc(s.noRuj)}</td><td>${esc(s.penerima)}</td><td>${nl(s.alamat)}</td><td>${esc(s.noTracking)}</td><td class="num">${kosTxt(s)}</td></tr>`).join('')}
+ <tr><th colspan="5" style="text-align:right">Jumlah (${r.length} surat)</th><th class="num">${kos.toFixed(2)}</th></tr></tbody></table>
+ <div style="display:flex;justify-content:space-between;margin-top:50px;font-size:12px">
+  <div>.......................................<br>Disediakan oleh<br>Tarikh:</div>
+  <div>.......................................<br>Diterima oleh (Pos)<br>Tarikh:</div></div></div>`);
+}
+/* ---------- Lampiran A: Senarai Penghantaran Pos ---------- */
+function htmlLampiranA(r){
+ const satu=k=>{const v=[...new Set(r.map(s=>s[k]||''))];return v.length===1?v[0]:'';};
+ const tHantar=satu('tarikhHantar'),bhg=satu('disediakan'),pgh=satu('namaPenghantar');
+ const isi=v=>v?esc(v):'';
+ const baris=r.map((s,i)=>{
+  const cat=[s.noTracking?'No. Tracking: '+esc(s.noTracking):'',s.catatan?nl(s.catatan):''].filter(Boolean).join('<br>');
+  return `<tr><td class="c">${i+1}</td><td>${esc(s.noRuj)}</td><td><b>${esc(s.penerima)}</b>${s.alamat?'<br>'+nl(s.alamat):''}</td><td>${esc(s.kaedah)}</td><td>${cat}</td></tr>`;}).join('');
+ let kosong='';for(let i=r.length;i<10;i++)kosong+=`<tr class="kosong"><td class="c">${i+1}</td><td></td><td></td><td></td><td></td></tr>`;
+ const f=(l,v)=>`<div class="baris"><span class="lbl">${l}:</span><span class="isi">${v}</span></div>`;
+ const sah=(t,nama)=>`<div><b>${t}</b><div class="baris"><span>Nama:</span><i>${nama||''}</i></div><div class="baris"><span>Tarikh:</span><i></i></div><div class="baris ttg"><span>Tandatangan:</span><i></i></div></div>`;
+ return `<div class="lampA">
+ <div class="la-tajuk"><div class="t1">LAMPIRAN A</div><div class="t2">SENARAI PENGHANTARAN POS</div><div class="t3">${esc((tetapan.org||'Perbadanan Muzium Melaka').toUpperCase())}</div></div>
+ <div class="la-info">${f('Tarikh Penghantaran',isi(fmt(tHantar)))}${f('Nama Penghantar',isi(pgh))}${f('Bahagian',isi(bhg))}${f('Disemak oleh','')}</div>
+ <table class="la-jadual"><colgroup><col style="width:6.6%"><col style="width:19.9%"><col style="width:40.3%"><col style="width:16.6%"><col style="width:16.6%"></colgroup>
+ <thead><tr><th>Bil.</th><th>No. Rujukan</th><th>Nama &amp; Alamat Penerima</th><th>Jenis Pos</th><th>Catatan</th></tr></thead>
+ <tbody>${baris}${kosong}</tbody></table>
+ <div class="la-sah">${sah('Disediakan oleh:',isi(pgh))}${sah('Disemak oleh:')}</div></div>`;
+}
+function cetakLampiranA(r){if(!r||!r.length){toast('Tiada surat untuk dicetak');return;}cetak(htmlLampiranA(r),true);}
+function cetakLampiranAKelompok(kid){cetakLampiranA(ahliKelompok(kid));}
+function cetakLampiranASurat(id){
+ const s=cache.find(x=>x.id===id);if(!s)return;
+ if(s.kelompokId)cetakLampiranAKelompok(s.kelompokId);else cetakLampiranA([s]);
+}
+function tempohLaporan(){
+ const m=$('#rMod').value;
+ if(m==='harian'){const t=$('#rTarikh').value;return t?[t,t]:null;}
+ if(m==='bulanan'){const b=$('#rBulan').value;return b?[b+'-01',b+'-31']:null;}
+ const d=$('#rDari').value,h=$('#rHingga').value;return d&&h?[d,h]:null;
+}
+function cetakLampiranAHarian(){
+ const t=tempohLaporan();if(!t){toast('Sila pilih tarikh');return;}
+ cetakLampiranA(cache.filter(s=>s.jenis==='keluar'&&s.tarikhHantar>=t[0]&&s.tarikhHantar<=t[1]).sort((a,b)=>a.tarikhHantar.localeCompare(b.tarikhHantar)||a.dibuat-b.dibuat));
+}
+async function padamKelompok(kid){
+ const r=ahliKelompok(kid);
+ if(!confirm(`Padam kelompok ini (${r.length} surat)? Tindakan ini tidak boleh dibatalkan.`))return;
+ for(const s of r){for(const l of (s.lampiran||[]))await del('fail',l.id);await del('surat',s.id);}
+ await loadCache();closeModal();refresh();toast('Kelompok dipadam');
+}
+
+/* ---------- Slip Minit ---------- */
+function cetakSlip(id){
+ const s=cache.find(x=>x.id===id);
+ cetak(`<div class="slip rpt" style="max-width:700px;margin:auto"><h1>${esc(tetapan.org)}</h1><div class="sub"><b>SLIP EDARAN / MINIT SURAT MASUK</b></div>
+ <table><tr><th style="width:30%">No. Rujukan Kami</th><td>${esc(s.noRujDalaman)}</td></tr>
+ <tr><th>No. Rujukan Pengirim</th><td>${esc(s.noRujPengirim)}</td></tr>
+ <tr><th>Tarikh Surat / Terima</th><td>${fmt(s.tarikhSurat)} / ${fmt(s.tarikhTerima)}</td></tr>
+ <tr><th>Pengirim</th><td>${esc(s.pengirim)}</td></tr><tr><th>Perkara</th><td>${nl(s.perkara)}</td></tr>
+ <tr><th>Klasifikasi / Kaedah</th><td>${esc(s.klasifikasi)} / ${esc(s.kaedah)}</td></tr>
+ <tr><th>Agih Kepada</th><td>${esc(s.agihKepada)}</td></tr><tr><th>Tarikh Akhir Tindakan</th><td>${fmt(s.tarikhAkhir)}</td></tr>
+ <tr><th>Catatan</th><td>${nl(s.catatan)}</td></tr></table>
+ <h3 style="color:#000">Minit</h3><table class="minit"><tr><th style="width:20%">Tarikh</th><th>Minit / Arahan</th><th style="width:22%">Tandatangan</th></tr>
+ <tr><td></td><td></td><td></td></tr><tr><td></td><td></td><td></td></tr><tr><td></td><td></td><td></td></tr></table></div>`);
+}
+
+/* ---------- Laporan ---------- */
+function renderLaporan(){
+ $('#main').innerHTML=`<div class="card"><h2>Laporan / Senarai Penghantaran Pos</h2><div class="bar">
+ <input type="hidden" id="rJenis" value="keluar">
+ <select id="rMod"><option value="harian">Harian</option><option value="bulanan" selected>Bulanan</option><option value="julat">Julat Tarikh</option></select>
+ <input type="date" id="rTarikh" value="${today()}"><input type="month" id="rBulan" value="${today().slice(0,7)}">
+ <span id="rJulat"><input type="date" id="rDari"> hingga <input type="date" id="rHingga" value="${today()}"></span>
+ <button class="btn" onclick="janaLaporan()">Jana</button><button class="btn sec" onclick="!lastReport?toast('Jana laporan dahulu'):!lastBil?toast('Tiada surat dalam tempoh ini'):cetak(lastReport,true)">Cetak / PDF</button>
+ <button class="btn sec" onclick="lastKos?cetak(lastKos):toast('Jana laporan dahulu')" title="Laporan kos pos setiap surat dan jumlah, untuk semakan kewangan">Cetak Laporan Kos Pos</button>
+ </div></div><div class="card" id="rOut"><div class="empty">Pilih tempoh dan tekan Jana.</div></div>`;
+ const mod=()=>{const m=$('#rMod').value;$('#rTarikh').classList.toggle('hidden',m!=='harian');$('#rBulan').classList.toggle('hidden',m!=='bulanan');$('#rJulat').classList.toggle('hidden',m!=='julat');};
+ $('#rMod').addEventListener('change',mod);mod();lastReport='';lastKos='';lastBil=0;
+}
+function janaLaporan(){
+ const j=$('#rJenis').value,m=$('#rMod').value;let dari,hingga,label;
+ if(m==='harian'){dari=hingga=$('#rTarikh').value;label='Tarikh: '+fmt(dari);}
+ else if(m==='bulanan'){const b=$('#rBulan').value;if(b){dari=b+'-01';hingga=b+'-31';}label='Bulan: '+namaBulan(b);}
+ else{dari=$('#rDari').value;hingga=$('#rHingga').value;label=`Tempoh: ${fmt(dari)} hingga ${fmt(hingga)}`;}
+ if(!dari||!hingga){toast('Sila pilih tarikh');return;}
+ const key=j==='masuk'?'tarikhTerima':'tarikhHantar';
+ const r=cache.filter(s=>s.jenis===j&&s[key]>=dari&&s[key]<=hingga).sort((a,b)=>a[key].localeCompare(b[key])||a.dibuat-b.dibuat);
+ const ikut={};r.forEach(s=>{const k=s.kaedah||'-';ikut[k]=ikut[k]||{n:0,kos:0};ikut[k].n++;ikut[k].kos+=Number(s.kos)||0;});
+ let h=`<div class="rpt"><h1>${esc(tetapan.org)}</h1><div class="sub"><b>${j==='masuk'?'BUKU DAFTAR SURAT MASUK':'LAPORAN KOS POS'}</b><br>${label}</div><table><thead>`;
+ if(j==='masuk'){
+  h+=`<tr><th>Bil</th><th>Tarikh Terima</th><th>No. Rujukan Kami</th><th>No. Rujukan Pengirim</th><th>Tarikh Surat</th><th>Pengirim</th><th>Perkara</th><th>Klas.</th><th>Kaedah</th><th>Agih Kepada</th><th>Status</th><th style="width:90px">T/tangan Penerima</th></tr></thead><tbody>
+  ${r.map((s,i)=>`<tr><td>${i+1}</td><td>${fmt(s.tarikhTerima)}</td><td>${esc(s.noRujDalaman)}</td><td>${esc(s.noRujPengirim)}</td><td>${fmt(s.tarikhSurat)}</td><td>${esc(s.pengirim)}</td><td>${esc(s.perkara)}</td><td>${esc(s.klasifikasi)}</td><td>${esc(s.kaedah)}</td><td>${esc(s.agihKepada)}</td><td>${esc(s.status)}${isLewat(s)?' (Lewat)':''}</td><td></td></tr>`).join('')}`;
+ }else{
+  h+=`<tr><th>Bil</th><th>Tarikh Hantar</th><th>No. Rujukan</th><th>Tarikh Surat</th><th>Penerima</th><th>Alamat</th><th>Klas.</th><th>Kaedah</th><th>No. Tracking</th><th>Kos (RM)</th></tr></thead><tbody>
+  ${r.map((s,i)=>`<tr><td>${i+1}</td><td>${fmt(s.tarikhHantar)}</td><td>${esc(s.noRuj)}</td><td>${fmt(s.tarikhSurat)}</td><td>${esc(s.penerima)}</td><td>${nl(s.alamat)}</td><td>${esc(s.klasifikasi)}</td><td>${esc(s.kaedah)}</td><td>${esc(s.noTracking)}</td><td class="num">${s.kos!==''&&s.kos!=null?(+s.kos).toFixed(2):''}</td></tr>`).join('')}`;
+ }
+ if(!r.length)h+=`<tr><td colspan="12" style="text-align:center">Tiada rekod</td></tr>`;
+ h+=`</tbody></table><table class="sum"><thead><tr><th>Kaedah</th><th>Bilangan</th>${j==='keluar'?'<th>Kos (RM)</th>':''}</tr></thead><tbody>
+ ${Object.entries(ikut).map(([k,o])=>`<tr><td>${esc(k)}</td><td>${o.n}</td>${j==='keluar'?`<td class="num">${o.kos.toFixed(2)}</td>`:''}</tr>`).join('')}
+ <tr><th>Jumlah</th><th>${r.length}</th>${j==='keluar'?`<th class="num">${Object.values(ikut).reduce((a,o)=>a+o.kos,0).toFixed(2)}</th>`:''}</tr></tbody></table>`;
+ if(j==='masuk'){const st={};r.forEach(s=>st[s.status]=(st[s.status]||0)+1);
+  h+=`<table class="sum"><thead><tr><th>Status</th><th>Bilangan</th></tr></thead><tbody>${STATUS.map(x=>`<tr><td>${x}</td><td>${st[x]||0}</td></tr>`).join('')}<tr><td>Lewat tindakan</td><td>${r.filter(isLewat).length}</td></tr></tbody></table>`;}
+ h+=`<p style="font-size:11px;margin-top:18px">Dicetak pada ${fmt(today())}</p></div>`;
+ if(j==='keluar'){
+  // Paparan & cetakan utama: Senarai Penghantaran Pos (Lampiran A). Laporan kos disimpan berasingan.
+  lastKos=h;lastBil=r.length;lastReport=htmlLampiranA(r);
+  const jum=Object.values(ikut).reduce((a,o)=>a+o.kos,0);
+  $('#rOut').innerHTML=`<p class="mut" style="margin-top:0">${label} · ${r.length} surat${r.length?'':' — tiada rekod dalam tempoh ini'}</p>
+  <div class="laPrev">${lastReport}</div>
+  <h3>Ringkasan Kos Pos (tidak dicetak dalam Lampiran A)</h3>
+  <table class="sum"><thead><tr><th>Kaedah</th><th>Bilangan</th><th>Kos (RM)</th></tr></thead><tbody>
+  ${Object.entries(ikut).map(([k,o])=>`<tr><td>${esc(k)}</td><td>${o.n}</td><td class="num">${o.kos.toFixed(2)}</td></tr>`).join('')}
+  <tr><th>Jumlah</th><th>${r.length}</th><th class="num">${jum.toFixed(2)}</th></tr></tbody></table>`;
+  return;
+ }
+ lastReport=h;$('#rOut').innerHTML=h;
+}
+
+/* ---------- CSV ---------- */
+function eksportCSV(j){
+ const r=tapis(j);
+ const cols=j==='masuk'
+  ?[['noRujDalaman','No. Rujukan Kami'],['noRujPengirim','No. Rujukan Pengirim'],['tarikhSurat','Tarikh Surat'],['tarikhTerima','Tarikh Terima'],['pengirim','Pengirim'],['perkara','Perkara'],['klasifikasi','Klasifikasi'],['kaedah','Kaedah'],['agihKepada','Agih Kepada'],['tarikhAgih','Tarikh Agih'],['status','Status'],['tarikhAkhir','Tarikh Akhir'],['tarikhSelesai','Tarikh Selesai'],['catatan','Catatan']]
+  :[['noRuj','No. Rujukan'],['tarikhSurat','Tarikh Surat'],['tarikhHantar','Tarikh Hantar'],['penerima','Penerima'],['alamat','Alamat'],['perkara','Perkara'],['klasifikasi','Klasifikasi'],['kaedah','Kaedah'],['noTracking','No. Tracking'],['kos','Kos (RM)'],['namaPenghantar','Nama Penghantar'],['disediakan','Bahagian'],['catatan','Catatan']];
+ const q=v=>'"'+String(v??'').replace(/"/g,'""')+'"';
+ const lines=[cols.map(c=>q(c[1])).join(',')].concat(r.map(s=>cols.map(([k])=>q(/^tarikh/.test(k)?fmt(s[k]):s[k])).join(',')));
+ download(`surat_${j}_${today()}.csv`,new Blob(['\ufeff'+lines.join('\r\n')],{type:'text/csv'}));
+}
+
+/* ---------- Tetapan & Sandaran ---------- */
+function renderTetapan(){
+ $('#main').innerHTML=`<div class="card"><h2>Tetapan</h2><div class="grid">
+ <label class="full">Nama Organisasi (untuk kepala laporan)<input id="tOrg" value="${esc(tetapan.org)}"></label>
+ <label class="full">Senarai Nama Penghantar (satu nama setiap baris)<textarea id="tPgh" rows="5" placeholder="cth: Abu Hanifah bin Rozali">${esc((tetapan.penghantar||[]).join('\n'))}</textarea></label>
+ <label class="full">Bahagian Lalai (terisi automatik semasa daftar surat keluar)<input id="tBhgLalai" placeholder="cth: Bahagian Permuziuman" value="${esc(tetapan.bahagianLalai||'')}"></label>
+ <label class="full">Senarai Bahagian / Pegawai (pilihan untuk Bahagian dan Agih Kepada, satu setiap baris)<textarea id="tBhg" rows="6">${esc(tetapan.bahagian.join('\n'))}</textarea></label></div>
+ <div class="mfoot"><button class="btn" onclick="simpanTetapan()">Simpan Tetapan</button></div></div>
+ <div class="card"><h2>Sandaran &amp; Pemulihan</h2>
+ <p class="mut">Data disimpan dalam pelayar (browser) komputer ini sahaja. Buat sandaran sekerap mungkin (cth: setiap minggu) dan simpan dalam pendrive / folder lain. Jangan kosongkan data pelayar (clear browsing data).</p>
+ <div class="bar"><button class="btn" onclick="eksportJSON()">Muat Turun Sandaran (.json)</button>
+ <label class="btn sec">Pulihkan Dari Sandaran<input type="file" accept=".json" class="hidden" onchange="importJSON(this)"></label></div>
+ <p class="mut">Jumlah rekod surat keluar: ${cache.filter(s=>s.jenis==='keluar').length}.</p>
+ </div>
+ <div class="card"><h2>Kata Laluan</h2><div class="grid">
+  <label>Kata Laluan Semasa<input type="password" id="pwLama" autocomplete="current-password"></label><span></span>
+  <label>Kata Laluan Baru<input type="password" id="pwBaru" autocomplete="new-password"></label>
+  <label>Ulang Kata Laluan Baru<input type="password" id="pwUlang" autocomplete="new-password"></label></div>
+  <div class="mfoot"><button class="btn" onclick="tukarPw()">Tukar Kata Laluan</button></div>
+  <h3>Soalan Keselamatan (untuk "Lupa kata laluan")</h3>
+  <p class="mut">${tetapan.soalan?'Soalan semasa: <b>'+esc(tetapan.soalan)+'</b>':'<b style="color:var(--bad)">Belum ditetapkan.</b> Tanpa soalan ini, kata laluan yang dilupa tidak boleh ditukar.'}</p>
+  <div class="grid"><label class="full">Soalan<input id="sqSoalan" placeholder="cth: Nama sekolah rendah saya?" value="${esc(tetapan.soalan||'')}"></label>
+  <label>Jawapan<input id="sqJawapan" autocomplete="off"></label>
+  <label>Kata Laluan Semasa (pengesahan)<input type="password" id="sqPw" autocomplete="current-password"></label></div>
+  <div class="mfoot"><button class="btn" onclick="simpanSoalan()">Simpan Soalan Keselamatan</button></div></div>
+ <div class="card"><h3>Zon Bahaya</h3><button class="btn del" onclick="padamSemua()">Padam Semua Data</button></div>`;
+}
+async function simpanTetapan(){tetapan.org=$('#tOrg').value.trim()||'Perbadanan Muzium Melaka';tetapan.bahagian=$('#tBhg').value.split('\n').map(x=>x.trim()).filter(Boolean);tetapan.penghantar=$('#tPgh').value.split('\n').map(x=>x.trim()).filter(Boolean);tetapan.bahagianLalai=$('#tBhgLalai').value.trim();await saveTetapan();toast('Tetapan disimpan');}
+async function eksportJSON(){
+ toast('Menyediakan sandaran...');
+ const fail=await getAll('fail'),out=[];
+ for(const f of fail)out.push({id:f.id,name:f.name,type:f.type,size:f.size,data:await blobToDataURL(f.blob)});
+ const data={app:'DaftarSuratPERZIM',versi:1,tarikh:new Date().toISOString(),tetapan,surat:cache,fail:out};
+ download(`sandaran_daftar_surat_${today()}.json`,new Blob([JSON.stringify(data)],{type:'application/json'}));
+ tetapan.lastBackup=new Date().toISOString();await saveTetapan();
+}
+async function importJSON(inp){
+ const file=inp.files[0];inp.value='';if(!file)return;
+ let data;try{data=JSON.parse(await file.text());if(data.app!=='DaftarSuratPERZIM')throw 0;}catch(e){alert('Fail sandaran tidak sah.');return;}
+ if(!confirm(`Pulihkan ${data.surat.length} rekod dari sandaran ${fmt((data.tarikh||'').slice(0,10))}?\n\nSEMUA data sedia ada akan DIGANTI.`))return;
+ try{
+  await clearSt('surat');await clearSt('fail');
+  for(const s of data.surat)await put('surat',s);
+  for(const f of (data.fail||[]))await put('fail',{id:f.id,blob:dataURLtoBlob(f.data),name:f.name,type:f.type,size:f.size});
+  if(data.tetapan){const kekal={pwHash:tetapan.pwHash,soalan:tetapan.soalan,jawapanHash:tetapan.jawapanHash};tetapan={...tetapan,...data.tetapan,...kekal,key:'main'};await saveTetapan();}
+ }catch(e){alert('Ralat semasa memulihkan: '+e);}
+ await loadCache();render();toast('Data dipulihkan');
+}
+async function padamSemua(){
+ if(!confirm('Padam SEMUA rekod surat dan lampiran?'))return;
+ if(prompt('Taip PADAM untuk sahkan')!=='PADAM')return;
+ await clearSt('surat');await clearSt('fail');await loadCache();render();toast('Semua data dipadam');
+}
+
+/* ---------- Kata Laluan ---------- */
+function sha256(str){
+ const K=[0x428a2f98,0x71374491,0xb5c0fbcf,0xe9b5dba5,0x3956c25b,0x59f111f1,0x923f82a4,0xab1c5ed5,0xd807aa98,0x12835b01,0x243185be,0x550c7dc3,0x72be5d74,0x80deb1fe,0x9bdc06a7,0xc19bf174,0xe49b69c1,0xefbe4786,0x0fc19dc6,0x240ca1cc,0x2de92c6f,0x4a7484aa,0x5cb0a9dc,0x76f988da,0x983e5152,0xa831c66d,0xb00327c8,0xbf597fc7,0xc6e00bf3,0xd5a79147,0x06ca6351,0x14292967,0x27b70a85,0x2e1b2138,0x4d2c6dfc,0x53380d13,0x650a7354,0x766a0abb,0x81c2c92e,0x92722c85,0xa2bfe8a1,0xa81a664b,0xc24b8b70,0xc76c51a3,0xd192e819,0xd6990624,0xf40e3585,0x106aa070,0x19a4c116,0x1e376c08,0x2748774c,0x34b0bcb5,0x391c0cb3,0x4ed8aa4a,0x5b9cca4f,0x682e6ff3,0x748f82ee,0x78a5636f,0x84c87814,0x8cc70208,0x90befffa,0xa4506ceb,0xbef9a3f7,0xc67178f2];
+ const b=new TextEncoder().encode(str),l=b.length,n=((l+9+63)>>6)<<6,m=new Uint8Array(n);m.set(b);m[l]=0x80;
+ const dv=new DataView(m.buffer);dv.setUint32(n-4,l*8>>>0);dv.setUint32(n-8,Math.floor(l/0x20000000));
+ let H=[0x6a09e667,0xbb67ae85,0x3c6ef372,0xa54ff53a,0x510e527f,0x9b05688c,0x1f83d9ab,0x5be0cd19];const w=new Array(64);const r=(x,k)=>(x>>>k)|(x<<(32-k));
+ for(let o=0;o<n;o+=64){for(let i=0;i<16;i++)w[i]=dv.getUint32(o+i*4);
+  for(let i=16;i<64;i++){const s0=r(w[i-15],7)^r(w[i-15],18)^(w[i-15]>>>3),s1=r(w[i-2],17)^r(w[i-2],19)^(w[i-2]>>>10);w[i]=(w[i-16]+s0+w[i-7]+s1)|0;}
+  let [a,bb,c,d,e,f,g,h]=H;
+  for(let i=0;i<64;i++){const t1=(h+(r(e,6)^r(e,11)^r(e,25))+((e&f)^(~e&g))+K[i]+w[i])|0,t2=((r(a,2)^r(a,13)^r(a,22))+((a&bb)^(a&c)^(bb&c)))|0;h=g;g=f;f=e;e=(d+t1)|0;d=c;c=bb;bb=a;a=(t1+t2)|0;}
+  H=H.map((x,i)=>(x+[a,bb,c,d,e,f,g,h][i])|0);}
+ return H.map(x=>(x>>>0).toString(16).padStart(8,'0')).join('');
+}
+const hashPw=p=>sha256('DSP|'+p);
+const hashJwp=j=>sha256('DSJ|'+j.trim().toLowerCase().replace(/\s+/g,' '));
+const pwSemasa=()=>tetapan.pwHash||'';
+function tunjukKunci(){
+ formState=null;$('#modal').classList.add('hidden');$('#main').innerHTML='';
+ const L=$('#lock');L.classList.remove('hidden');
+ if(!tetapan.pwHash){tunjukPersediaan();return;}
+ L.innerHTML=`<div class="lockbox"><h2>Sistem Daftar Surat</h2><p class="mut">${esc(tetapan.org)}</p>
+ <form onsubmit="return bukaKunci(event)"><input type="password" id="pwIn" placeholder="Kata laluan" autocomplete="current-password" style="width:100%">
+ <div id="pwErr" class="err"></div><button class="btn" style="width:100%;margin-top:10px">Masuk</button></form>
+ <p style="margin-top:14px"><a href="#" onclick="lupaPw();return false">Lupa kata laluan?</a></p>
+ <p class="mut" style="margin-top:20px">&copy; 2026 Abu Hanifah bin Rozali</p></div>`;
+ setTimeout(()=>$('#pwIn')?.focus(),50);
+}
+async function bukaKunci(e){
+ e.preventDefault();
+ if(!pwSemasa()||hashPw($('#pwIn').value)!==pwSemasa()){$('#pwErr').textContent='Kata laluan salah.';$('#pwIn').select();return false;}
+ $('#lock').classList.add('hidden');$('#lock').innerHTML='';
+ await loadCache();render();return false;
+}
+function lupaPw(){
+ const L=$('#lock .lockbox');
+ if(!tetapan.soalan||!tetapan.jawapanHash){
+  L.innerHTML=`<h2>Lupa Kata Laluan</h2><p>Soalan keselamatan belum ditetapkan, jadi kata laluan tidak boleh ditukar dari sini.</p>
+  <p class="mut">Hubungi pembangun sistem (Abu Hanifah bin Rozali) untuk bantuan.</p><button class="btn sec" onclick="tunjukKunci()">Kembali</button>`;return;}
+ L.innerHTML=`<h2>Lupa Kata Laluan</h2><form onsubmit="return resetPw(event)">
+ <p><b>${esc(tetapan.soalan)}</b></p><input id="jwpIn" placeholder="Jawapan" style="width:100%" autocomplete="off">
+ <input type="password" id="pwB1" placeholder="Kata laluan baru" style="width:100%;margin-top:8px" autocomplete="new-password">
+ <input type="password" id="pwB2" placeholder="Ulang kata laluan baru" style="width:100%;margin-top:8px" autocomplete="new-password">
+ <div id="pwErr" class="err"></div><button class="btn" style="width:100%;margin-top:10px">Tetapkan Kata Laluan Baru</button></form>
+ <p style="margin-top:12px"><a href="#" onclick="tunjukKunci();return false">Kembali</a></p>`;
+ setTimeout(()=>$('#jwpIn')?.focus(),50);
+}
+/* Kali pertama digunakan: pengguna tetapkan kata laluan & soalan keselamatan sendiri */
+function tunjukPersediaan(){
+ const L=$('#lock');
+ L.innerHTML=`<div class="lockbox"><h2>Selamat Datang</h2><p class="mut">${esc(tetapan.org)}</p>
+ <p>Tetapkan kata laluan dan soalan keselamatan untuk sistem ini.</p>
+ <form onsubmit="return simpanPersediaan(event)">
+ <input type="password" id="spP1" placeholder="Kata laluan baru" style="width:100%" autocomplete="new-password">
+ <input type="password" id="spP2" placeholder="Ulang kata laluan" style="width:100%;margin-top:8px" autocomplete="new-password">
+ <input id="spSoalan" placeholder="Soalan keselamatan (cth: Nama sekolah rendah saya?)" style="width:100%;margin-top:14px">
+ <input id="spJawapan" placeholder="Jawapan" style="width:100%;margin-top:8px" autocomplete="off">
+ <div id="pwErr" class="err"></div><button class="btn" style="width:100%;margin-top:10px">Simpan &amp; Masuk</button></form>
+ <p class="mut" style="margin-top:12px">Ada sandaran (.json) dari versi lama? Masuk dahulu, kemudian pergi ke Tetapan &amp; Sandaran → Pulihkan. Kata laluan yang anda tetapkan di sini akan kekal.</p>
+ <p class="mut" style="margin-top:14px">&copy; 2026 Abu Hanifah bin Rozali</p></div>`;
+ setTimeout(()=>$('#spP1')?.focus(),50);
+}
+async function simpanPersediaan(e){
+ e.preventDefault();const err=$('#pwErr'),p=$('#spP1').value,s=$('#spSoalan').value.trim(),j=$('#spJawapan').value;
+ if(p.length<4){err.textContent='Kata laluan sekurang-kurangnya 4 aksara.';return false;}
+ if(p!==$('#spP2').value){err.textContent='Kata laluan tidak sama.';return false;}
+ if(!s||!j.trim()){err.textContent='Sila isi soalan dan jawapan keselamatan.';return false;}
+ tetapan.pwHash=hashPw(p);tetapan.soalan=s;tetapan.jawapanHash=hashJwp(j);await saveTetapan();
+ $('#lock').classList.add('hidden');$('#lock').innerHTML='';await loadCache();render();toast('Kata laluan disimpan');return false;
+}
+async function resetPw(e){
+ e.preventDefault();const err=$('#pwErr');
+ if(hashJwp($('#jwpIn').value)!==tetapan.jawapanHash){err.textContent='Jawapan salah.';return false;}
+ const p=$('#pwB1').value;if(p.length<4){err.textContent='Kata laluan sekurang-kurangnya 4 aksara.';return false;}
+ if(p!==$('#pwB2').value){err.textContent='Kata laluan tidak sama.';return false;}
+ tetapan.pwHash=hashPw(p);await saveTetapan();alert('Kata laluan baru telah ditetapkan. Sila log masuk.');tunjukKunci();return false;
+}
+async function tukarPw(){
+ const lama=$('#pwLama').value,b1=$('#pwBaru').value,b2=$('#pwUlang').value;
+ if(hashPw(lama)!==pwSemasa()){toast('Kata laluan semasa salah');return;}
+ if(b1.length<4){toast('Kata laluan baru sekurang-kurangnya 4 aksara');return;}
+ if(b1!==b2){toast('Kata laluan baru tidak sama');return;}
+ tetapan.pwHash=hashPw(b1);await saveTetapan();['#pwLama','#pwBaru','#pwUlang'].forEach(s=>$(s).value='');toast('Kata laluan ditukar');
+}
+async function simpanSoalan(){
+ const s=$('#sqSoalan').value.trim(),j=$('#sqJawapan').value;
+ if(hashPw($('#sqPw').value)!==pwSemasa()){toast('Kata laluan semasa salah');return;}
+ if(!s||!j.trim()){toast('Isi soalan dan jawapan');return;}
+ tetapan.soalan=s;tetapan.jawapanHash=hashJwp(j);await saveTetapan();renderTetapan();toast('Soalan keselamatan disimpan');
+}
+
+/* ---------- Mula ---------- */
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&formState)closeModal();});
+(async()=>{
+ try{db=await openDB();}catch(e){$('#main').innerHTML='<div class="card">Pelayar ini tidak menyokong storan tempatan (IndexedDB). Sila guna Google Chrome atau Microsoft Edge.</div>';return;}
+ if(navigator.storage&&navigator.storage.persist)navigator.storage.persist().catch(()=>{});
+ const t=await getOne('tetapan','main');if(t)tetapan={...tetapan,...t};
+ applyTetapan();tunjukKunci();
+})();
+if('serviceWorker' in navigator&&location.protocol.startsWith('http'))navigator.serviceWorker.register('sw.js').catch(()=>{});
+</script>
+</body>
+</html>

@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+ <rect width="512" height="512" fill="#7a1f2b"/>
+ <rect x="0" y="0" width="512" height="512" fill="url(#g)"/>
+ <defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8e2533"/><stop offset="1" stop-color="#5c1620"/></linearGradient></defs>
+ <g transform="translate(256 200)">
+  <rect x="-118" y="-78" width="236" height="156" rx="14" fill="#fff"/>
+  <path d="M-108 -66 L0 18 L108 -66" fill="none" stroke="#7a1f2b" stroke-width="16" stroke-linejoin="round" stroke-linecap="round"/>
+  <circle cx="104" cy="62" r="34" fill="#f0c454" stroke="#5c1620" stroke-width="8"/>
+ </g>
+ <text x="256" y="364" text-anchor="middle" font-family="Liberation Sans, Arial, sans-serif" font-weight="700" font-size="68" fill="#fff" letter-spacing="6">POS</text>
+ <text x="256" y="430" text-anchor="middle" font-family="Liberation Sans, Arial, sans-serif" font-weight="700" font-size="62" fill="#f0c454" letter-spacing="4">PERZIM</text>
+</svg>
