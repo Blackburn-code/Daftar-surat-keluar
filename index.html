@@ -534,6 +534,38 @@ function grafTahun(thn,data,a,b){
  data.forEach((d,i)=>{g+=`<rect x="${x(i)-st/2}" y="${T}" width="${st}" height="${h}" fill="transparent"><title>${BULAN[i]} ${thn}\n${d.n} surat · ${rmK(d.kos)}</title></rect>`;});
  return g+'</svg>';
 }
+// Cetak ringkasan satu suku tahun (ikut bulan & kaedah), A4 potret
+function cetakRingkasanSuku(q,thn){
+ q=+q;thn=String(thn);if(!(q>=1&&q<=4)||!/^\d{4}$/.test(thn)){toast('Sila pilih suku dan tahun');return;}
+ const [a,b]=SUKU[q-1],keluar=cache.filter(s=>s.jenis==='keluar'),r=dalamJulat(keluar,thn,a,b);
+ const pq=q===1?4:q-1,py=q===1?+thn-1:+thn,rp=dalamJulat(keluar,py,SUKU[pq-1][0],SUKU[pq-1][1]);
+ const kelN=x=>new Set(x.filter(s=>s.kelompokId).map(s=>s.kelompokId)).size;
+ const bln=[];for(let m=a;m<=b;m++){const x=dalamJulat(r,thn,m,m);bln.push({m,n:x.length,k:kelN(x),kos:sumKos(x)});}
+ const ikut={};r.forEach(s=>{const k=s.kaedah||'-';ikut[k]=ikut[k]||{n:0,kos:0};ikut[k].n++;ikut[k].kos+=Number(s.kos)||0;});
+ const jum=sumKos(r),jumP=sumKos(rp);
+ const beza=(x,y)=>y?` (${x>=y?'+':''}${((x-y)/y*100).toFixed(1)}%)`:'';
+ const html=`<div class="rpt" style="max-width:720px;margin:auto"><h1>${esc(tetapan.org)}</h1>
+ <div class="sub"><b>RINGKASAN SURAT KELUAR &amp; KOS POS SUKU TAHUN</b><br>Suku ${q} (${BULAN[a-1]} – ${BULAN[b-1]}) ${thn}</div>
+ <h3 style="color:#000;border-color:#999">A. Ringkasan Mengikut Bulan</h3>
+ <table><thead><tr><th style="width:8%">Bil</th><th>Bulan</th><th>Bil. Surat</th><th>Bil. Kelompok</th><th>Kos Pos (RM)</th></tr></thead><tbody>
+ ${bln.map((o,i)=>`<tr><td>${i+1}</td><td>${BULAN[o.m-1]} ${thn}</td><td class="num">${o.n}</td><td class="num">${o.k}</td><td class="num">${o.kos.toFixed(2)}</td></tr>`).join('')}
+ <tr><th></th><th>Jumlah Suku ${q}</th><th class="num">${r.length}</th><th class="num">${kelN(r)}</th><th class="num">${jum.toFixed(2)}</th></tr></tbody></table>
+ <h3 style="color:#000;border-color:#999">B. Ringkasan Mengikut Kaedah Penghantaran</h3>
+ <table><thead><tr><th style="width:8%">Bil</th><th>Kaedah</th><th>Bil. Surat</th><th>Kos Pos (RM)</th><th>% Kos</th></tr></thead><tbody>
+ ${Object.entries(ikut).sort((x,y)=>y[1].kos-x[1].kos||y[1].n-x[1].n).map(([k,o],i)=>`<tr><td>${i+1}</td><td>${esc(k)}</td><td class="num">${o.n}</td><td class="num">${o.kos.toFixed(2)}</td><td class="num">${jum?(o.kos/jum*100).toFixed(1):'0.0'}</td></tr>`).join('')||'<tr><td colspan="5" style="text-align:center">Tiada rekod</td></tr>'}
+ <tr><th></th><th>Jumlah</th><th class="num">${r.length}</th><th class="num">${jum.toFixed(2)}</th><th class="num">${jum?'100.0':'0.0'}</th></tr></tbody></table>
+ <h3 style="color:#000;border-color:#999">C. Perbandingan</h3>
+ <table><thead><tr><th>Perkara</th><th>Suku ${pq} ${py}</th><th>Suku ${q} ${thn}</th></tr></thead><tbody>
+ <tr><td>Bilangan surat</td><td class="num">${rp.length}</td><td class="num">${r.length}${beza(r.length,rp.length)}</td></tr>
+ <tr><td>Kos pos (RM)</td><td class="num">${jumP.toFixed(2)}</td><td class="num">${jum.toFixed(2)}${beza(jum,jumP)}</td></tr>
+ <tr><td>Purata kos sesurat (RM)</td><td class="num">${(rp.length?jumP/rp.length:0).toFixed(2)}</td><td class="num">${(r.length?jum/r.length:0).toFixed(2)}</td></tr></tbody></table>
+ <table style="margin-top:34px;border:0"><tr>
+ <td style="border:0;width:50%;padding-right:30px"><b>Disediakan oleh:</b><br><br><br>.......................................................<br>Nama:<br>Jawatan:<br>Tarikh:</td>
+ <td style="border:0;width:50%"><b>Disemak oleh:</b><br><br><br>.......................................................<br>Nama:<br>Jawatan:<br>Tarikh:</td></tr></table>
+ <p style="font-size:11px;margin-top:18px">Dicetak pada ${fmt(today())}</p>
+ <div class="cetak-hc">Sistem Daftar Surat &copy; 2026 Abu Hanifah bin Rozali. Hak cipta terpelihara.</div></div>`;
+ cetak(html,true);
+}
 function renderUtama(){
  const now=today().slice(0,4);
  const keluar=cache.filter(s=>s.jenis==='keluar');
@@ -550,6 +582,8 @@ function renderUtama(){
  const bk=tetapan.lastBackup?fmt(tetapan.lastBackup.slice(0,10)):'belum pernah';
  const chip=(k,t)=>`<button class="${p===k?'on':''}" onclick="setDash('p','${k}')">${t}</button>`;
  const mxSq=Math.max(1,...data.map(d=>d.n));
+ // suku untuk dicetak: suku dipilih, atau suku semasa / S4 jika paparan bulan/tahun
+ const sqCetak=/^s[1-4]$/.test(p)?+p.slice(1):thn===now?Math.ceil(+today().slice(5,7)/3):4;
  const ini=s=>esc((s||'?').replace(/^Pos\s+/,'').slice(0,2).toUpperCase());
  $('#main').innerHTML=`<div class="dash"><div>
  <div class="dhead"><h2>Papan Utama</h2>
@@ -566,7 +600,7 @@ function renderUtama(){
   <span class="leg"><i style="background:#ff4b55;box-shadow:0 0 8px #ff4b55"></i>Bilangan surat</span><span class="leg"><i style="background:#d8cfd0"></i>Kos pos (RM)</span></div>
   ${grafTahun(thn,data,a,b)}</div>
  <div class="drow">
-  <div class="card"><div class="ctitle"><h2>Ringkasan Suku Tahun ${thn}</h2></div><div class="sq">
+  <div class="card"><div class="ctitle"><h2>Ringkasan Suku Tahun ${thn}</h2><button class="btn sec sm" onclick="cetakRingkasanSuku(${sqCetak},'${thn}')" title="Cetak ringkasan Suku ${sqCetak} ${thn}">🖨 Cetak S${sqCetak}</button></div><div class="sq">
   ${SUKU.map(([s,e],q)=>{const d=data.slice(s-1,e),n=d.reduce((x,y)=>x+y.n,0),k=d.reduce((x,y)=>x+y.kos,0);
    return `<button class="${p==='s'+(q+1)?'on':''}" onclick="setDash('p','s${q+1}')"><span class="h"><b>Suku ${q+1}</b>${BLN3[s-1]}–${BLN3[e-1]}</span>
    <span class="v"><span><strong>${n}</strong><small>surat · ${rmK(k)}</small></span><span class="mb">${d.map((m,i)=>`<i style="height:${Math.max(6,m.n/mxSq*100)}%" title="${BULAN[s-1+i]}: ${m.n} surat"></i>`).join('')}</span></span></button>`;}).join('')}
@@ -882,7 +916,7 @@ function renderLaporan(){
  <input type="hidden" id="rJenis" value="keluar">
  <select id="rMod"><option value="harian">Harian</option><option value="bulanan" selected>Bulanan</option><option value="suku">Suku Tahun</option><option value="julat">Julat Tarikh</option></select>
  <input type="date" id="rTarikh" value="${today()}"><input type="month" id="rBulan" value="${today().slice(0,7)}">
- <span id="rSuku"><select id="rSq">${SUKU.map(([a,b],q)=>`<option value="${q+1}"${Math.ceil(+today().slice(5,7)/3)===q+1?' selected':''}>Suku ${q+1} (${BULAN[a-1]} – ${BULAN[b-1]})</option>`).join('')}</select> <input type="number" id="rThn" value="${today().slice(0,4)}" min="2000" max="2100" style="width:90px" title="Tahun"></span>
+ <span id="rSuku"><select id="rSq">${SUKU.map(([a,b],q)=>`<option value="${q+1}"${Math.ceil(+today().slice(5,7)/3)===q+1?' selected':''}>Suku ${q+1} (${BULAN[a-1]} – ${BULAN[b-1]})</option>`).join('')}</select> <input type="number" id="rThn" value="${today().slice(0,4)}" min="2000" max="2100" style="width:90px" title="Tahun"> <button class="btn sec" onclick="cetakRingkasanSuku($('#rSq').value,$('#rThn').value)" title="Ringkasan satu muka surat ikut bulan dan kaedah">🖨 Cetak Ringkasan Suku</button></span>
  <span id="rJulat"><input type="date" id="rDari"> hingga <input type="date" id="rHingga" value="${today()}"></span>
  <button class="btn" onclick="janaLaporan()">Jana</button><button class="btn sec" onclick="!lastReport?toast('Jana laporan dahulu'):!lastBil?toast('Tiada surat dalam tempoh ini'):cetak(lastReport,true)">Cetak / PDF</button>
  <button class="btn sec" onclick="lastKos?cetak(lastKos):toast('Jana laporan dahulu')" title="Laporan kos pos setiap surat dan jumlah, untuk semakan kewangan">Cetak Laporan Kos Pos</button>
