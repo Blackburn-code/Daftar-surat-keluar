@@ -119,9 +119,90 @@ tr.lewat td{background:#fdecea!important}
  body{background:#fff}
  tr{page-break-inside:avoid}
 }
+/* ---------- Skrin pembuka (5 saat) ---------- */
+#splash{position:fixed;inset:0;z-index:1000;background:#000;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;animation:spFade 5s linear forwards;-webkit-user-select:none;user-select:none}
+#splash svg{width:min(560px,88vw);height:auto;overflow:visible;animation:spEyes 5s linear forwards}
+#splash .sp-lid{transform-box:fill-box;transform-origin:center;animation:spLid 5s ease-in-out forwards}
+#splash .sp-red{animation:spRed 5s linear forwards}
+#splash .sp-pur{transform-box:fill-box;transform-origin:center;animation:spPur 5s ease-out forwards}
+#splash .sp-spin{transform-box:fill-box;transform-origin:center;animation:spSpin 1.1s linear infinite}
+#splash .sp-spin2{transform-box:fill-box;transform-origin:center;animation:spSpin 2.6s linear infinite}
+#splash .sp-spin3{transform-box:fill-box;transform-origin:center;animation:spSpin 1.8s linear infinite reverse}
+#splash .sp-name{position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);text-align:center;opacity:0;animation:spName 5s ease-out forwards}
+#splash .sp-name b{display:block;font-size:clamp(30px,7vw,56px);letter-spacing:.18em;color:#efe6ff;text-shadow:0 0 12px #b57cff,0 0 32px #7d3cff}
+#splash .sp-name span{display:block;margin-top:10px;font-size:clamp(12px,2.6vw,17px);letter-spacing:.3em;color:#b9a8d6;text-transform:uppercase}
+@keyframes spLid{0%,6%{transform:scaleY(.03)}26%,72%{transform:scaleY(1)}80%,100%{transform:scaleY(.03)}}
+@keyframes spRed{0%,48%{opacity:1}58%,100%{opacity:0}}
+@keyframes spPur{0%,48%{opacity:0;transform:scale(.6)}58%,100%{opacity:1;transform:scale(1)}}
+@keyframes spSpin{to{transform:rotate(360deg)}}
+@keyframes spEyes{0%,46%{filter:drop-shadow(0 0 10px #ff2a1a);opacity:1}52%{filter:drop-shadow(0 0 26px #fff)}60%,78%{filter:drop-shadow(0 0 14px #a855ff);opacity:1}82%,100%{opacity:0}}
+@keyframes spName{0%,78%{opacity:0;letter-spacing:.6em;filter:blur(8px)}90%,100%{opacity:1;letter-spacing:normal;filter:blur(0)}}
+@keyframes spFade{0%,92%{opacity:1}100%{opacity:0}}
+@media (prefers-reduced-motion:reduce){#splash svg{display:none}#splash .sp-name{animation:none;opacity:1}#splash{animation:spFade 1.5s linear forwards}}
 </style>
 </head>
 <body>
+<div id="splash" title="Tekan untuk langkau">
+ <svg viewBox="0 0 400 120" aria-hidden="true">
+  <defs>
+   <radialGradient id="spGR"><stop offset="0" stop-color="#ff5a3c"/><stop offset=".7" stop-color="#d0140c"/><stop offset="1" stop-color="#6e0603"/></radialGradient>
+   <radialGradient id="spGP"><stop offset="0" stop-color="#f3e4ff"/><stop offset=".6" stop-color="#c79cf5"/><stop offset="1" stop-color="#7b3fc4"/></radialGradient>
+   <clipPath id="spClip" clipPathUnits="userSpaceOnUse"><path class="sp-lid" d="M28,70 C70,26 135,24 174,50 C140,82 72,90 28,70Z"/></clipPath>
+  </defs>
+  <g clip-path="url(#spClip)">
+    <path d="M28,70 C70,26 135,24 174,50 C140,82 72,90 28,70Z" fill="#e9e6ea"/>
+    <g class="sp-red">
+     <circle cx="102" cy="58" r="27" fill="url(#spGR)" stroke="#2a0000" stroke-width="2.5"/>
+     <circle cx="102" cy="58" r="15" fill="none" stroke="#3a0000" stroke-width="1.4" opacity=".7"/>
+     <g class="sp-spin">
+      <path d="M102,40 l4,6 l-4,3 l-4,-3Z M117.6,67 l-7.2,.5 l-.6,-4 l3.6,-2.8Z M86.4,67 l3.6,-6.3 l3.6,2.8 l-.6,4Z" fill="#1a0000"/>
+      <circle cx="102" cy="58" r="21" fill="none" stroke="#1a0000" stroke-width="1" stroke-dasharray="3 9"/>
+     </g>
+     <circle cx="102" cy="58" r="5" fill="#120000"/>
+    </g>
+    <g class="sp-pur">
+     <circle cx="102" cy="58" r="34" fill="url(#spGP)" stroke="#3b1466" stroke-width="2"/>
+     <g fill="none" stroke="#3b1466">
+      <circle class="sp-spin2" cx="102" cy="58" r="27" stroke-width="1.6" stroke-dasharray="14 5"/>
+      <circle class="sp-spin3" cx="102" cy="58" r="20" stroke-width="1.6" stroke-dasharray="9 4"/>
+      <circle class="sp-spin2" cx="102" cy="58" r="13" stroke-width="1.6" stroke-dasharray="5 3"/>
+     </g>
+     <circle cx="102" cy="58" r="5" fill="#2a0c4a"/>
+    </g>
+  </g>
+  <g transform="translate(400,0) scale(-1,1)"><g clip-path="url(#spClip)">
+    <path d="M28,70 C70,26 135,24 174,50 C140,82 72,90 28,70Z" fill="#e9e6ea"/>
+    <g class="sp-red">
+     <circle cx="102" cy="58" r="27" fill="url(#spGR)" stroke="#2a0000" stroke-width="2.5"/>
+     <circle cx="102" cy="58" r="15" fill="none" stroke="#3a0000" stroke-width="1.4" opacity=".7"/>
+     <g class="sp-spin">
+      <path d="M102,40 l4,6 l-4,3 l-4,-3Z M117.6,67 l-7.2,.5 l-.6,-4 l3.6,-2.8Z M86.4,67 l3.6,-6.3 l3.6,2.8 l-.6,4Z" fill="#1a0000"/>
+      <circle cx="102" cy="58" r="21" fill="none" stroke="#1a0000" stroke-width="1" stroke-dasharray="3 9"/>
+     </g>
+     <circle cx="102" cy="58" r="5" fill="#120000"/>
+    </g>
+    <g class="sp-pur">
+     <circle cx="102" cy="58" r="34" fill="url(#spGP)" stroke="#3b1466" stroke-width="2"/>
+     <g fill="none" stroke="#3b1466">
+      <circle class="sp-spin2" cx="102" cy="58" r="27" stroke-width="1.6" stroke-dasharray="14 5"/>
+      <circle class="sp-spin3" cx="102" cy="58" r="20" stroke-width="1.6" stroke-dasharray="9 4"/>
+      <circle class="sp-spin2" cx="102" cy="58" r="13" stroke-width="1.6" stroke-dasharray="5 3"/>
+     </g>
+     <circle cx="102" cy="58" r="5" fill="#2a0c4a"/>
+    </g>
+  </g></g>
+ </svg>
+ <div class="sp-name"><b>POS PERZIM</b><span>Perbadanan Muzium Melaka</span></div>
+</div>
+<script>
+(function(){
+ const s=document.getElementById('splash');let done=false;
+ const tamat=()=>{if(done)return;done=true;s.remove();const p=document.getElementById('pwIn');if(p)p.focus();};
+ s.addEventListener('click',tamat);
+ s.addEventListener('animationend',e=>{if(e.target===s)tamat();});
+ setTimeout(tamat,5300);
+})();
+</script>
 <header>
  <h1>Sistem Daftar Surat Keluar</h1>
  <div class="org" id="orgName"></div>
