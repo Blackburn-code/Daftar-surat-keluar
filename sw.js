@@ -1,6 +1,6 @@
 // Service worker: simpan fail sistem supaya boleh digunakan tanpa internet.
 // Tukar VERSI setiap kali index.html dikemas kini supaya PC mendapat versi baharu.
-const VERSI = 'pos-perzim-v3';
+const VERSI = 'pos-perzim-v4';
 const FAIL = ['./', './index.html', './manifest.json',
   './icons/icon-32.png', './icons/icon-180.png', './icons/icon-192.png',
   './icons/icon-512.png', './icons/icon-maskable-512.png'];
