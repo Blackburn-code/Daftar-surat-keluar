@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Sistem Daftar Surat</title>
 <link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#7a1f2b">
+<meta name="theme-color" content="#0a0607">
 <link rel="icon" type="image/png" sizes="32x32" href="icons/icon-32.png">
 <link rel="apple-touch-icon" href="icons/icon-180.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -119,6 +119,184 @@ tr.lewat td{background:#fdecea!important}
  body{background:#fff}
  tr{page-break-inside:avoid}
 }
+/* =========================================================
+   TEMA GELAP KACA MERAH (mengatasi gaya asal di atas)
+   ========================================================= */
+:root{--pri:#e3343f;--pri2:#a3121f;--bg:#0a0607;--card:rgba(255,255,255,.045);--line:rgba(255,255,255,.09);--txt:#f2eaeb;--mut:#a99a9c;--ok:#3fcf8e;--warn:#f2a93b;--bad:#ff5c63;--blue:#7aa7ff;--glass:rgba(24,14,16,.66);--grad:linear-gradient(145deg,#ff4b55,#b3121f);color-scheme:dark}
+html{background:#0a0607}
+body{background:#0a0607;color:var(--txt);min-height:100vh}
+body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;background:radial-gradient(circle at 12% 8%,rgba(227,52,63,.20),transparent 42%),radial-gradient(circle at 88% 92%,rgba(255,96,40,.13),transparent 46%),radial-gradient(circle at 60% 40%,rgba(120,10,20,.18),transparent 55%)}
+::selection{background:rgba(227,52,63,.45)}
+/* Menu tepi */
+#nav{position:fixed;left:14px;top:50%;transform:translateY(-50%);z-index:40;display:flex;flex-direction:column;align-items:center;gap:6px;padding:10px 8px;background:var(--glass);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);border:1px solid var(--line);border-radius:32px;box-shadow:0 10px 40px rgba(0,0,0,.5);flex-wrap:nowrap}
+#nav .logo{width:44px;height:44px;display:grid;place-items:center;margin-bottom:6px}
+#nav .logo svg{width:36px}
+#nav button{width:44px;height:44px;border-radius:50%;border:0;padding:0;background:none;color:#cbbcbe;cursor:pointer;display:grid;place-items:center;position:relative;transition:background .2s,color .2s}
+#nav button svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+#nav button:hover{background:rgba(255,255,255,.08);color:#fff}
+#nav button.on{background:var(--grad);color:#fff;box-shadow:0 0 18px rgba(227,52,63,.6);border:0;font-weight:400}
+#nav button::after{content:attr(data-label);position:absolute;left:56px;top:50%;transform:translateY(-50%);background:#1d1214;border:1px solid var(--line);color:#fff;font-size:12px;padding:5px 10px;border-radius:7px;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .15s}
+#nav button:hover::after{opacity:1}
+#nav .sep{flex:1;min-height:18px;width:24px;border-bottom:1px solid var(--line);margin-bottom:6px}
+#app{margin-left:84px}
+header{background:none;color:var(--txt);padding:20px 22px 0;max-width:1350px;margin:0 auto;display:flex;align-items:flex-end;justify-content:space-between;gap:12px;flex-wrap:wrap}
+header h1{font-size:20px;letter-spacing:.02em}
+header .org{color:var(--mut);opacity:1}
+header .hdate{font-size:12px;color:var(--mut);background:var(--card);border:1px solid var(--line);padding:6px 12px;border-radius:20px}
+@media(max-width:760px){
+ #nav{left:50%;top:auto;bottom:10px;transform:translateX(-50%);flex-direction:row;padding:6px 8px}
+ #nav .logo,#nav .sep{display:none}
+ #nav button::after{display:none}
+ #app{margin-left:0;padding-bottom:80px}
+ #toast{bottom:84px}
+}
+/* Komponen */
+main{padding:16px 22px}
+h3{color:#ff7b83;border-bottom-color:var(--line)}
+.card{background:var(--card);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);border:1px solid var(--line);border-radius:16px;box-shadow:0 10px 30px rgba(0,0,0,.3)}
+.stat{background:var(--card);border:1px solid var(--line);border-left:3px solid var(--pri);border-radius:14px}
+input,select,textarea{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.13);color:var(--txt);border-radius:8px}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--pri);box-shadow:0 0 0 3px rgba(227,52,63,.22)}
+input::placeholder,textarea::placeholder{color:#7d6e70}
+option,optgroup{background:#1a1012;color:var(--txt)}
+.btn{background:var(--grad);border-radius:8px;box-shadow:0 4px 14px rgba(227,52,63,.28);transition:filter .15s,box-shadow .15s}
+.btn:hover{background:var(--grad);filter:brightness(1.12);box-shadow:0 4px 20px rgba(227,52,63,.45)}
+.btn.sec{background:rgba(255,255,255,.04);color:#ff8a90;border:1px solid rgba(227,52,63,.55);box-shadow:none}
+.btn.sec:hover{background:rgba(227,52,63,.12)}
+.btn.del{background:linear-gradient(145deg,#ff5c63,#b3121f)}
+th,td{border-bottom-color:var(--line)}
+th{background:rgba(255,255,255,.05);color:#d9cdce}
+tbody tr:hover td{background:rgba(255,255,255,.035)}
+tr.lewat td{background:rgba(255,92,99,.12)!important}
+.t-Baru{background:rgba(122,167,255,.15);color:#9dbdff}.t-Diagihkan{background:rgba(190,130,255,.15);color:#cfa8ff}
+.t-Dalam{background:rgba(242,169,59,.15);color:#f5bd6a}.t-Selesai{background:rgba(63,207,142,.15);color:#6fe0ac}
+.t-Sulit{background:rgba(255,92,99,.16);color:#ff8a90}.t-Terhad{background:rgba(242,169,59,.15);color:#f5bd6a}
+.modal{background:rgba(0,0,0,.65);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px)}
+.mbox{background:#150d0f;border:1px solid var(--line);border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,.6)}
+.x{color:var(--mut)}.x:hover{color:#fff}
+.grid label{color:#cdbfc1}
+.lamp{background:rgba(255,255,255,.05)}
+.lamp a{color:#9dbdff}
+#toast{background:#24161a;border:1px solid var(--line);box-shadow:0 8px 30px rgba(0,0,0,.5)}
+.laPrev{background:#fff;color:#000;border-radius:10px}
+.rpt,.slip,.rpt th,.slip th{color:#000}
+#printZone{color:#000;background:#fff}
+.hakcipta{color:#6f6163}
+/* ---- Gaya Papan Utama ---- */
+.dash{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:16px;align-items:start}
+@media(max-width:1050px){.dash{grid-template-columns:1fr}}
+.dhead{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-bottom:14px}
+.dhead h2{font-size:21px;margin:0 auto 0 0}
+.chips{display:flex;flex-wrap:wrap;gap:3px;background:rgba(255,255,255,.04);border:1px solid var(--line);border-radius:30px;padding:4px}
+.chips button{border:0;background:none;color:var(--mut);padding:6px 12px;border-radius:20px;cursor:pointer;font:inherit;font-size:12.5px}
+.chips button:hover{color:#fff}
+.chips button.on{background:var(--grad);color:#fff;box-shadow:0 0 12px rgba(227,52,63,.45)}
+.dhead select{border-radius:20px;padding:6px 10px}
+.dstats{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:16px}
+.ds{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px 16px;position:relative;overflow:hidden}
+.ds.utama{background:linear-gradient(145deg,rgba(255,75,85,.35),rgba(120,10,20,.35));border-color:rgba(255,90,100,.45)}
+.ds span{font-size:12px;color:var(--mut)}
+.ds.utama span{color:#f5d5d8}
+.ds b{display:block;font-size:26px;margin:6px 0 4px;letter-spacing:.01em}
+.ds small{font-size:11px;color:var(--mut)}
+.ds .chg{display:inline-block;font-size:11px;padding:1px 7px;border-radius:10px;background:rgba(255,255,255,.07);color:#ddd;margin-left:4px}
+.ds .chg.naik{color:#6fe0ac;background:rgba(63,207,142,.12)}.ds .chg.turun{color:#ff8a90;background:rgba(255,92,99,.12)}
+.ctitle{display:flex;align-items:center;flex-wrap:wrap;gap:6px 14px;margin-bottom:6px}
+.ctitle h2{margin:0 auto 0 0;font-size:15px}
+.ctitle .mut{display:block}
+.leg{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--mut)}
+.leg i{width:10px;height:10px;border-radius:50%;display:inline-block}
+.chart svg{width:100%;height:auto;display:block}
+.chart text{font-family:inherit}
+.drow{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:700px){.drow{grid-template-columns:1fr}}
+.kb{display:grid;grid-template-columns:105px 1fr auto;gap:10px;align-items:center;font-size:12.5px;margin:9px 0}
+.kb .bar2{height:7px;background:rgba(255,255,255,.07);border-radius:5px;overflow:hidden}
+.kb .bar2 i{display:block;height:100%;background:linear-gradient(90deg,#b3121f,#ff5a3c);border-radius:5px}
+.kb em{font-style:normal;color:var(--mut);font-size:11.5px;white-space:nowrap}
+.sq{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.sq button{all:unset;box-sizing:border-box;cursor:pointer;background:rgba(255,255,255,.035);border:1px solid var(--line);border-radius:12px;padding:10px 12px;display:flex;flex-direction:column;gap:2px;transition:border-color .2s,background .2s}
+.sq button:hover{border-color:rgba(227,52,63,.5)}
+.sq button.on{border-color:var(--pri);background:rgba(227,52,63,.12);box-shadow:0 0 16px rgba(227,52,63,.2)}
+.sq .h{display:flex;justify-content:space-between;font-size:12px;color:var(--mut)}
+.sq .h b{color:#fff;font-size:13px}
+.sq .v{display:flex;justify-content:space-between;align-items:flex-end;margin-top:4px}
+.sq .v strong{font-size:20px}
+.sq .v small{font-size:11px;color:var(--mut);display:block}
+.sq .mb{display:flex;align-items:flex-end;gap:3px;height:30px}
+.sq .mb i{width:7px;border-radius:3px 3px 0 0;background:linear-gradient(180deg,#ff5a3c,#b3121f);min-height:2px}
+.rpanel{padding:18px}
+.prof{text-align:center;margin-bottom:14px}
+.prof .av{width:64px;height:64px;border-radius:50%;margin:0 auto 8px;display:grid;place-items:center;background:radial-gradient(circle at 35% 30%,#3a1418,#120809);border:2px solid rgba(227,52,63,.55);box-shadow:0 0 20px rgba(227,52,63,.35)}
+.prof .av svg{width:40px}
+.prof b{display:block;font-size:14px}
+.prof span{font-size:11.5px;color:var(--mut)}
+.acts{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:16px}
+.acts button{all:unset;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:6px;font-size:10.5px;color:var(--mut);text-align:center}
+.acts button i{width:42px;height:42px;border-radius:12px;display:grid;place-items:center;background:rgba(255,255,255,.05);border:1px solid var(--line);color:#fff;transition:background .2s,box-shadow .2s}
+.acts button:hover i{background:var(--grad);box-shadow:0 0 14px rgba(227,52,63,.5)}
+.acts svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.kad{border-radius:16px;padding:16px;min-height:160px;position:relative;overflow:hidden;color:#fff;background:radial-gradient(circle at 85% 15%,rgba(255,200,120,.35),transparent 35%),repeating-radial-gradient(circle at 20% 120%,rgba(255,255,255,.07) 0 2px,transparent 2px 14px),linear-gradient(135deg,#2a0609,#9c1020 55%,#ff5a32);box-shadow:0 12px 30px rgba(180,20,30,.35);display:flex;flex-direction:column;margin-bottom:16px}
+.kad .k1{font-size:11px;letter-spacing:.12em;opacity:.85}
+.kad .k2{font-size:28px;font-weight:700;margin:6px 0 2px;letter-spacing:.01em}
+.kad .k3{font-size:12px;opacity:.85}
+.kad .k4{margin-top:auto;display:flex;justify-content:space-between;align-items:flex-end;font-size:11px;padding-top:14px}
+.kad .k4 b{letter-spacing:.2em;font-size:13px}
+.kad .chip{width:34px;height:26px;border-radius:5px;background:linear-gradient(135deg,#f6d27a,#b98a2e);position:absolute;right:16px;top:16px;opacity:.9}
+.txh{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
+.txh h2{font-size:14px;margin:0}
+.txh a{font-size:12px;color:#ff8a90;cursor:pointer;text-decoration:none}
+.tx{display:flex;gap:10px;align-items:center;padding:9px 0;border-bottom:1px solid var(--line);cursor:pointer}
+.tx:last-child{border-bottom:0}
+.tx:hover .tt b{color:#ff8a90}
+.tx .ic{width:34px;height:34px;flex:none;border-radius:50%;display:grid;place-items:center;font-size:11px;font-weight:700;background:rgba(227,52,63,.15);color:#ff8a90;border:1px solid rgba(227,52,63,.35)}
+.tx .tt{flex:1;min-width:0}
+.tx .tt b{display:block;font-size:12.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tx .tt span{font-size:11px;color:var(--mut)}
+.tx .km{font-size:11.5px;padding:2px 8px;border-radius:10px;background:rgba(63,207,142,.12);color:#6fe0ac;white-space:nowrap}
+/* ---------- Skrin kata laluan (kaca merah) ---------- */
+.lock{background:#050304;overflow:hidden}
+.lock::before{content:"";position:absolute;inset:-50%;background:repeating-linear-gradient(115deg,transparent 0 70px,rgba(227,52,63,.10) 90px,rgba(255,70,80,.42) 112px,rgba(227,52,63,.10) 134px,transparent 154px 260px);filter:blur(16px);animation:lkJalur 16s linear infinite}
+.lock::after{content:"";position:absolute;inset:0;background:radial-gradient(ellipse at 50% 50%,transparent 20%,rgba(0,0,0,.75) 80%),linear-gradient(180deg,rgba(0,0,0,.35),transparent 30%,transparent 70%,rgba(0,0,0,.5))}
+@keyframes lkJalur{to{transform:translateX(287px)}}
+.lockbox{position:relative;z-index:1;width:100%;max-width:390px;text-align:left;color:var(--txt);padding:34px 30px 26px;background:linear-gradient(160deg,rgba(255,255,255,.11),rgba(255,255,255,.025));-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.16);border-radius:18px;clip-path:polygon(34px 0,100% 0,100% calc(100% - 34px),calc(100% - 34px) 100%,0 100%,0 34px);box-shadow:inset 0 1px 0 rgba(255,255,255,.12);animation:lkMasuk .55s cubic-bezier(.2,.8,.2,1)}
+@keyframes lkMasuk{from{opacity:0;transform:translateY(16px) scale(.97)}to{opacity:1;transform:none}}
+.lockbox .lk-c1,.lockbox .lk-c2{position:absolute;width:52px;height:52px;pointer-events:none;filter:drop-shadow(0 0 6px rgba(255,60,70,.9))}
+.lockbox .lk-c1{top:0;left:0;background:linear-gradient(135deg,transparent 25px,#ff3b47 25px,#ff3b47 27.5px,transparent 27.5px)}
+.lockbox .lk-c2{bottom:0;right:0;background:linear-gradient(315deg,transparent 25px,#ff3b47 25px,#ff3b47 27.5px,transparent 27.5px)}
+.lk-isi{transition:opacity .25s,transform .25s}
+.lockbox h2{color:#fff;font-size:22px;margin:0 0 4px}
+.lockbox p{margin:6px 0}
+.lockbox .mut{color:#b9aaac}
+.lockbox a{color:#ff8a90;text-decoration:none}
+.lockbox a:hover{text-decoration:underline}
+.lk-ikon{width:52px;height:52px;border-radius:14px;display:grid;place-items:center;margin-bottom:14px;background:var(--grad);box-shadow:0 0 24px rgba(227,52,63,.55)}
+.lk-ikon svg{width:24px;height:24px;fill:none;stroke:#fff;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.lk-lbl{display:block;font-size:12px;color:#cdbfc1;margin:14px 0 6px}
+.lk-f{position:relative}
+.lk-f>svg{position:absolute;left:12px;top:50%;transform:translateY(-50%);width:16px;height:16px;fill:none;stroke:#9b8b8d;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;pointer-events:none}
+.lockbox input{width:100%;padding:11px 12px 11px 38px;background:rgba(0,0,0,.35);border:1px solid rgba(255,255,255,.14);border-radius:10px}
+.lockbox input:focus{border-color:#ff4b55;box-shadow:0 0 0 3px rgba(227,52,63,.25)}
+.lk-mata{position:absolute;right:6px;top:50%;transform:translateY(-50%);background:none;border:0;color:#9b8b8d;cursor:pointer;padding:6px;display:grid}
+.lk-mata:hover{color:#fff}
+.lk-mata svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.lockbox .btn{width:100%;margin-top:16px;padding:12px;font-size:15px;font-weight:600;border-radius:10px;box-shadow:0 6px 24px rgba(227,52,63,.45)}
+.lockbox .btn.sec{box-shadow:none}
+.lk-kaki{margin-top:18px;padding-top:12px;border-top:1px solid rgba(255,255,255,.08);text-align:center;font-size:11.5px}
+.lockbox .err{color:#ff8a90}
+.lk-spin{position:absolute;inset:0;display:grid;place-items:center;opacity:0;pointer-events:none;transition:opacity .2s}
+.lk-spin i{width:46px;height:46px;border:2px solid #ff4b55;border-radius:10px;box-shadow:0 0 18px rgba(255,60,70,.8),inset 0 0 14px rgba(255,60,70,.5);animation:lkPusing .9s cubic-bezier(.6,0,.4,1) infinite}
+.lk-spin i+i{position:absolute;width:24px;height:24px;background:rgba(255,75,85,.55);border:0;animation-direction:reverse}
+@keyframes lkPusing{to{transform:rotate(360deg)}}
+.lockbox.tukar .lk-isi{opacity:0;transform:scale(.95)}
+.lockbox.tukar .lk-spin{opacity:1}
+.lockbox.goyang{animation:lkGoyang .35s}
+@keyframes lkGoyang{25%{transform:translateX(-7px)}75%{transform:translateX(7px)}}
+@media print{
+ body{background:#fff;color:#000}
+ body::before{display:none}
+ #app{margin:0}
+}
 /* ---------- Skrin pembuka (5 saat) ---------- */
 #splash{position:fixed;inset:0;z-index:1000;background:#000;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;animation:spFade 5s linear forwards;-webkit-user-select:none;user-select:none}
 #splash svg{width:min(560px,88vw);height:auto;overflow:visible;animation:spEyes 5s linear forwards}
@@ -205,20 +383,24 @@ tr.lewat td{background:#fdecea!important}
  setTimeout(tamat,5300);
 })();
 </script>
-<header>
- <h1>Sistem Daftar Surat Keluar</h1>
- <div class="org" id="orgName"></div>
-</header>
-<nav id="nav">
- <button data-tab="utama" class="on">Papan Utama</button>
- <button data-tab="keluar">Surat Keluar</button>
- <button data-tab="laporan">Laporan</button>
- <button data-tab="tetapan">Tetapan &amp; Sandaran</button>
- <button data-act="kunci" style="margin-left:auto">🔒 Kunci</button>
+<nav id="nav" aria-label="Menu utama">
+ <div class="logo" title="POS PERZIM"><svg viewBox="0 0 40 24" aria-hidden="true"><path d="M2,6 L33,8 C35,11 37,16 38,20 C26,23 10,22 2,6Z" fill="#e9e6ea"/><circle cx="20" cy="13" r="6.5" fill="#e3343f"/><circle cx="20" cy="13" r="2" fill="#120000"/><path d="M2,6 L33,8 L34,10 L3,8Z" fill="#8f8b96"/></svg></div>
+ <button data-tab="utama" data-label="Papan Utama" aria-label="Papan Utama" class="on"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.8"/><rect x="14" y="3" width="7" height="7" rx="1.8"/><rect x="3" y="14" width="7" height="7" rx="1.8"/><rect x="14" y="14" width="7" height="7" rx="1.8"/></svg></button>
+ <button data-tab="keluar" data-label="Surat Keluar" aria-label="Surat Keluar"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg></button>
+ <button data-tab="laporan" data-label="Laporan" aria-label="Laporan"><svg viewBox="0 0 24 24"><path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4M9 17v-3M12 17v-6M15 17v-4"/></svg></button>
+ <button data-tab="tetapan" data-label="Tetapan &amp; Sandaran" aria-label="Tetapan dan Sandaran"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"/></svg></button>
+ <span class="sep"></span>
+ <button data-act="kunci" data-label="Kunci" aria-label="Kunci"><svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></button>
 </nav>
+<div id="app">
+<header>
+ <div><h1>Sistem Daftar Surat Keluar</h1><div class="org" id="orgName"></div></div>
+ <div class="hdate" id="hDate"></div>
+</header>
 <main id="main"></main>
-<div id="lock" class="lock hidden"></div>
 <footer class="hakcipta">&copy; 2026 Abu Hanifah bin Rozali. Hak cipta terpelihara.</footer>
+</div>
+<div id="lock" class="lock hidden"></div>
 
 <div id="modal" class="modal hidden"><div class="mbox"><div class="mhead"><h2 id="mTitle"></h2><button class="x" onclick="closeModal()">&times;</button></div><div id="mBody"></div></div></div>
 <datalist id="dlBahagian"></datalist><datalist id="dlPenghantar"></datalist>
@@ -278,34 +460,169 @@ async function saveTetapan(){await put('tetapan',tetapan);applyTetapan();}
 function applyTetapan(){$('#orgName').textContent=tetapan.org;$('#dlBahagian').innerHTML=tetapan.bahagian.map(b=>`<option value="${esc(b)}">`).join('');$('#dlPenghantar').innerHTML=(tetapan.penghantar||[]).map(b=>`<option value="${esc(b)}">`).join('');}
 
 /* ---------- Navigasi ---------- */
-$('#nav').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;if(b.dataset.act==='kunci'){tunjukKunci();return;}tab=b.dataset.tab;
- document.querySelectorAll('#nav button').forEach(x=>x.classList.toggle('on',x===b));render();});
+$('#nav').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;if(b.dataset.act==='kunci'){tunjukKunci();return;}goTab(b.dataset.tab);});
+function goTab(t){tab=t;document.querySelectorAll('#nav button[data-tab]').forEach(x=>x.classList.toggle('on',x.dataset.tab===t));render();window.scrollTo(0,0);}
+{const H=['Ahad','Isnin','Selasa','Rabu','Khamis','Jumaat','Sabtu'],d=new Date();$('#hDate').textContent=`${H[d.getDay()]}, ${d.getDate()} ${BULAN[d.getMonth()]} ${d.getFullYear()}`;}
 function render(){({utama:renderUtama,masuk:()=>renderSenarai('masuk'),keluar:()=>renderSenarai('keluar'),laporan:renderLaporan,tetapan:renderTetapan})[tab]();}
 function refresh(){if(tab==='masuk'||tab==='keluar')refreshTable(tab);else render();}
 
 /* ---------- Papan Utama ---------- */
+const SUKU=[[1,3],[4,6],[7,9],[10,12]];
+const BLN3=['Jan','Feb','Mac','Apr','Mei','Jun','Jul','Ogo','Sep','Okt','Nov','Dis'];
+let dash={thn:today().slice(0,4),p:'bulan'};
+const sumKos=a=>a.reduce((x,s)=>x+(Number(s.kos)||0),0);
+const rmK=n=>'RM '+(Number(n)||0).toLocaleString('ms-MY',{minimumFractionDigits:2,maximumFractionDigits:2});
+// Julat bulan [mula,akhir] (1-12) bagi tempoh dipilih
+function julatTempoh(p){
+ if(p==='bulan')return [+today().slice(5,7),+today().slice(5,7)];
+ if(p==='tahun')return [1,12];
+ return SUKU[+p.slice(1)-1];
+}
+function labelTempoh(p,thn){
+ if(p==='bulan')return BULAN[+today().slice(5,7)-1]+' '+thn;
+ if(p==='tahun')return 'Tahun '+thn;
+ const [a,b]=SUKU[+p.slice(1)-1];return `Suku ${p.slice(1)} (${BLN3[a-1]}–${BLN3[b-1]}) ${thn}`;
+}
+function dalamJulat(r,thn,a,b){return r.filter(s=>{const t=s.tarikhHantar||'';if(t.slice(0,4)!==String(thn))return false;const m=+t.slice(5,7);return m>=a&&m<=b;});}
+// Tempoh sebelumnya untuk perbandingan
+function tempohLepas(p,thn){
+ if(p==='tahun')return {thn:+thn-1,j:[1,12],lbl:'tahun '+(+thn-1)};
+ if(p==='bulan'){let m=+today().slice(5,7)-1,y=+thn;if(m<1){m=12;y--;}return {thn:y,j:[m,m],lbl:BULAN[m-1]};}
+ let q=+p.slice(1)-1,y=+thn;if(q<1){q=4;y--;}return {thn:y,j:SUKU[q-1],lbl:'S'+q+(y!==+thn?' '+y:'')};
+}
+function chg(now,prev,lbl){
+ if(!prev)return '';const d=(now-prev)/prev*100;if(!isFinite(d))return '';
+ const c=d>0.05?'naik':d<-0.05?'turun':'';return `<span class="chg ${c}" title="Berbanding ${esc(lbl)}">${d>0?'▲':d<0?'▼':''} ${Math.abs(d).toFixed(0)}%</span>`;
+}
+function setDash(k,v){dash[k]=v;if(k==='thn'&&v!==today().slice(0,4)&&dash.p==='bulan')dash.p='tahun';renderUtama();}
+// Lengkung licin melalui titik (Catmull-Rom ke Bezier)
+function lengkung(pts){
+ if(!pts.length)return '';let d=`M${pts[0][0]},${pts[0][1]}`;
+ for(let i=0;i<pts.length-1;i++){const p0=pts[i-1]||pts[i],p1=pts[i],p2=pts[i+1],p3=pts[i+2]||p2;
+  d+=` C${(p1[0]+(p2[0]-p0[0])/6).toFixed(1)},${(p1[1]+(p2[1]-p0[1])/6).toFixed(1)} ${(p2[0]-(p3[0]-p1[0])/6).toFixed(1)},${(p2[1]-(p3[1]-p1[1])/6).toFixed(1)} ${p2[0]},${p2[1]}`;}
+ return d;
+}
+const bulat=v=>{if(v<=0)return 4;const e=Math.pow(10,Math.floor(Math.log10(v))),f=v/e;return (f<=1?1:f<=2?2:f<=2.5?2.5:f<=5?5:10)*e;};
+function grafTahun(thn,data,a,b){
+ const W=720,H=250,L=40,R=58,T=18,B=48,w=W-L-R,h=H-T-B,st=w/11;
+ const mxN=4*Math.max(1,bulat(Math.max(...data.map(d=>d.n))/4)),mxK=4*bulat(Math.max(...data.map(d=>d.kos))/4);
+ const x=i=>+(L+i*st).toFixed(1),yN=v=>+(T+h-v/mxN*h).toFixed(1),yK=v=>+(T+h-v/mxK*h).toFixed(1);
+ const now=+today().slice(0,4),thisM=+thn===now?+today().slice(5,7):13;
+ // garis hanya sehingga bulan semasa (bulan akan datang belum ada data)
+ const lim=+thn<now?12:+thn===now?thisM:0;
+ const pN=data.map((d,i)=>[x(i),yN(d.n)]),pK=data.map((d,i)=>[x(i),yK(d.kos)]);
+ const lN=pN.slice(0,lim),lK=pK.slice(0,lim);
+ let g=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Graf bilangan surat dan kos pos ${thn}"><defs>
+ <linearGradient id="gN" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff4b55" stop-opacity=".38"/><stop offset="1" stop-color="#ff4b55" stop-opacity="0"/></linearGradient>
+ <filter id="gGlow" x="-10%" y="-30%" width="120%" height="160%"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>`;
+ // jalur tempoh dipilih
+ g+=`<rect x="${x(a-1)-st/2}" y="${T-8}" width="${(b-a+1)*st}" height="${h+16}" rx="10" fill="rgba(227,52,63,.10)" stroke="rgba(227,52,63,.35)" stroke-dasharray="4 4"/>`;
+ for(let k=0;k<=4;k++){const yy=T+h*k/4;g+=`<line x1="${L}" x2="${W-R}" y1="${yy}" y2="${yy}" stroke="rgba(255,255,255,.06)"/>
+ <text x="${L-8}" y="${yy+4}" text-anchor="end" font-size="11" fill="#ff8a90">${+(mxN*(1-k/4)).toFixed(1)}</text>
+ <text x="${W-R+8}" y="${yy+4}" font-size="11" fill="#a99a9c">${+(mxK*(1-k/4)).toFixed(2)}</text>`;}
+ // pemisah suku tahun
+ [3,6,9].forEach(m=>{const xx=x(m-1)+st/2;g+=`<line x1="${xx}" x2="${xx}" y1="${T}" y2="${T+h}" stroke="rgba(255,255,255,.10)" stroke-dasharray="2 4"/>`;});
+ if(lim){g+=`<path d="${lengkung(lN)} L${lN[lim-1][0]},${T+h} L${x(0)},${T+h}Z" fill="url(#gN)"/>`;
+ g+=`<path d="${lengkung(lK)}" fill="none" stroke="#d8cfd0" stroke-width="1.8" stroke-opacity=".75"/>`;
+ g+=`<path d="${lengkung(lN)}" fill="none" stroke="#ff4b55" stroke-width="2.6" filter="url(#gGlow)"/>`;}
+ data.forEach((d,i)=>{const on=i+1>=a&&i+1<=b;
+  if(i<lim)g+=`<circle cx="${pK[i][0]}" cy="${pK[i][1]}" r="${on?3:2}" fill="#d8cfd0" opacity="${on?1:.6}"/>`;
+  if(i<lim)g+=`<circle cx="${pN[i][0]}" cy="${pN[i][1]}" r="${on?4.5:3}" fill="${on?'#fff':'#ff4b55'}" stroke="#ff4b55" stroke-width="2"/>`;
+  g+=`<text x="${x(i)}" y="${H-28}" text-anchor="middle" font-size="11.5" fill="${on?'#fff':i+1===thisM?'#ff8a90':'#8d7f81'}" font-weight="${on?700:400}">${BLN3[i]}</text>`;});
+ SUKU.forEach(([s,e],q)=>{const on=s===a&&e===b;g+=`<text x="${(x(s-1)+x(e-1))/2}" y="${H-8}" text-anchor="middle" font-size="11" fill="${on?'#ff4b55':'#6f6163'}" font-weight="700" letter-spacing="1">S${q+1}</text>`;});
+ // kawasan sentuh + tooltip
+ data.forEach((d,i)=>{g+=`<rect x="${x(i)-st/2}" y="${T}" width="${st}" height="${h}" fill="transparent"><title>${BULAN[i]} ${thn}\n${d.n} surat · ${rmK(d.kos)}</title></rect>`;});
+ return g+'</svg>';
+}
+// Cetak ringkasan satu suku tahun (ikut bulan & kaedah), A4 potret
+function cetakRingkasanSuku(q,thn){
+ q=+q;thn=String(thn);if(!(q>=1&&q<=4)||!/^\d{4}$/.test(thn)){toast('Sila pilih suku dan tahun');return;}
+ const [a,b]=SUKU[q-1],keluar=cache.filter(s=>s.jenis==='keluar'),r=dalamJulat(keluar,thn,a,b);
+ const pq=q===1?4:q-1,py=q===1?+thn-1:+thn,rp=dalamJulat(keluar,py,SUKU[pq-1][0],SUKU[pq-1][1]);
+ const kelN=x=>new Set(x.filter(s=>s.kelompokId).map(s=>s.kelompokId)).size;
+ const bln=[];for(let m=a;m<=b;m++){const x=dalamJulat(r,thn,m,m);bln.push({m,n:x.length,k:kelN(x),kos:sumKos(x)});}
+ const ikut={};r.forEach(s=>{const k=s.kaedah||'-';ikut[k]=ikut[k]||{n:0,kos:0};ikut[k].n++;ikut[k].kos+=Number(s.kos)||0;});
+ const jum=sumKos(r),jumP=sumKos(rp);
+ const beza=(x,y)=>y?` (${x>=y?'+':''}${((x-y)/y*100).toFixed(1)}%)`:'';
+ const html=`<div class="rpt" style="max-width:720px;margin:auto"><h1>${esc(tetapan.org)}</h1>
+ <div class="sub"><b>RINGKASAN SURAT KELUAR &amp; KOS POS SUKU TAHUN</b><br>Suku ${q} (${BULAN[a-1]} – ${BULAN[b-1]}) ${thn}</div>
+ <h3 style="color:#000;border-color:#999">A. Ringkasan Mengikut Bulan</h3>
+ <table><thead><tr><th style="width:8%">Bil</th><th>Bulan</th><th>Bil. Surat</th><th>Bil. Kelompok</th><th>Kos Pos (RM)</th></tr></thead><tbody>
+ ${bln.map((o,i)=>`<tr><td>${i+1}</td><td>${BULAN[o.m-1]} ${thn}</td><td class="num">${o.n}</td><td class="num">${o.k}</td><td class="num">${o.kos.toFixed(2)}</td></tr>`).join('')}
+ <tr><th></th><th>Jumlah Suku ${q}</th><th class="num">${r.length}</th><th class="num">${kelN(r)}</th><th class="num">${jum.toFixed(2)}</th></tr></tbody></table>
+ <h3 style="color:#000;border-color:#999">B. Ringkasan Mengikut Kaedah Penghantaran</h3>
+ <table><thead><tr><th style="width:8%">Bil</th><th>Kaedah</th><th>Bil. Surat</th><th>Kos Pos (RM)</th><th>% Kos</th></tr></thead><tbody>
+ ${Object.entries(ikut).sort((x,y)=>y[1].kos-x[1].kos||y[1].n-x[1].n).map(([k,o],i)=>`<tr><td>${i+1}</td><td>${esc(k)}</td><td class="num">${o.n}</td><td class="num">${o.kos.toFixed(2)}</td><td class="num">${jum?(o.kos/jum*100).toFixed(1):'0.0'}</td></tr>`).join('')||'<tr><td colspan="5" style="text-align:center">Tiada rekod</td></tr>'}
+ <tr><th></th><th>Jumlah</th><th class="num">${r.length}</th><th class="num">${jum.toFixed(2)}</th><th class="num">${jum?'100.0':'0.0'}</th></tr></tbody></table>
+ <h3 style="color:#000;border-color:#999">C. Perbandingan</h3>
+ <table><thead><tr><th>Perkara</th><th>Suku ${pq} ${py}</th><th>Suku ${q} ${thn}</th></tr></thead><tbody>
+ <tr><td>Bilangan surat</td><td class="num">${rp.length}</td><td class="num">${r.length}${beza(r.length,rp.length)}</td></tr>
+ <tr><td>Kos pos (RM)</td><td class="num">${jumP.toFixed(2)}</td><td class="num">${jum.toFixed(2)}${beza(jum,jumP)}</td></tr>
+ <tr><td>Purata kos sesurat (RM)</td><td class="num">${(rp.length?jumP/rp.length:0).toFixed(2)}</td><td class="num">${(r.length?jum/r.length:0).toFixed(2)}</td></tr></tbody></table>
+ <table style="margin-top:34px;border:0"><tr>
+ <td style="border:0;width:50%;padding-right:30px"><b>Disediakan oleh:</b><br><br><br>.......................................................<br>Nama:<br>Jawatan:<br>Tarikh:</td>
+ <td style="border:0;width:50%"><b>Disemak oleh:</b><br><br><br>.......................................................<br>Nama:<br>Jawatan:<br>Tarikh:</td></tr></table>
+ <p style="font-size:11px;margin-top:18px">Dicetak pada ${fmt(today())}</p>
+ <div class="cetak-hc">Sistem Daftar Surat &copy; 2026 Abu Hanifah bin Rozali. Hak cipta terpelihara.</div></div>`;
+ cetak(html,true);
+}
 function renderUtama(){
- const bln=today().slice(0,7),thn=bln.slice(0,4);
+ const now=today().slice(0,4);
  const keluar=cache.filter(s=>s.jenis==='keluar');
- const kBln=keluar.filter(s=>(s.tarikhHantar||'').startsWith(bln));
+ const tahunAda=[...new Set([now,dash.thn,...keluar.map(s=>(s.tarikhHantar||'').slice(0,4)).filter(y=>/^\d{4}$/.test(y))])].sort().reverse();
+ const thn=dash.thn,p=(dash.p==='bulan'&&thn!==now)?'tahun':dash.p,[a,b]=julatTempoh(p);
  const kThn=keluar.filter(s=>(s.tarikhHantar||'').startsWith(thn));
- const kos=kBln.reduce((a,s)=>a+(Number(s.kos)||0),0),kosT=kThn.reduce((a,s)=>a+(Number(s.kos)||0),0);
- const kel=new Set(kBln.filter(s=>s.kelompokId).map(s=>s.kelompokId)).size;
- const baru=keluar.slice().sort((a,b)=>(b.tarikhHantar||'').localeCompare(a.tarikhHantar||'')||b.dibuat-a.dibuat).slice(0,15);
+ const r=dalamJulat(keluar,thn,a,b);
+ const lp=tempohLepas(p,thn),rL=dalamJulat(keluar,lp.thn,lp.j[0],lp.j[1]);
+ const kos=sumKos(r),kosL=sumKos(rL),kel=new Set(r.filter(s=>s.kelompokId).map(s=>s.kelompokId)).size;
+ const data=BULAN.map((_,i)=>{const m=dalamJulat(kThn,thn,i+1,i+1);return {n:m.length,kos:sumKos(m)};});
+ const ikut={};r.forEach(s=>{const k=s.kaedah||'-';ikut[k]=ikut[k]||{n:0,kos:0};ikut[k].n++;ikut[k].kos+=Number(s.kos)||0;});
+ const kd=Object.entries(ikut).sort((x,y)=>y[1].n-x[1].n),mxKd=kd.length?kd[0][1].n:1;
+ const baru=keluar.slice().sort((x,y)=>(y.tarikhHantar||'').localeCompare(x.tarikhHantar||'')||y.dibuat-x.dibuat).slice(0,6);
  const bk=tetapan.lastBackup?fmt(tetapan.lastBackup.slice(0,10)):'belum pernah';
- const nb=BULAN[+bln.slice(5)-1];
- $('#main').innerHTML=`
- <div class="bar"><button class="btn" onclick="openForm('keluar')">+ Daftar Surat Keluar</button><button class="btn sec" onclick="openKelompok()">+ Daftar Kelompok</button><button class="btn sec" onclick="cetakLampiranA(cache.filter(s=>s.jenis==='keluar'&&s.tarikhHantar===today()).sort((a,b)=>a.dibuat-b.dibuat))">Cetak Lampiran A (Hari Ini)</button>
- <span class="mut" style="margin-left:auto">Sandaran terakhir: <b>${bk}</b></span></div>
- <div class="stats">
-  <div class="stat blue"><span>Surat keluar (${nb})</span><b>${kBln.length}</b></div>
-  <div class="stat"><span>Kelompok (${nb})</span><b>${kel}</b></div>
-  <div class="stat ok"><span>Kos pos (${nb})</span><b style="font-size:20px">${rm(kos)}</b></div>
-  <div class="stat warn"><span>Kos pos tahun ${thn}</span><b style="font-size:20px">${rm(kosT)}</b></div>
+ const chip=(k,t)=>`<button class="${p===k?'on':''}" onclick="setDash('p','${k}')">${t}</button>`;
+ const mxSq=Math.max(1,...data.map(d=>d.n));
+ // suku untuk dicetak: suku dipilih, atau suku semasa / S4 jika paparan bulan/tahun
+ const sqCetak=/^s[1-4]$/.test(p)?+p.slice(1):thn===now?Math.ceil(+today().slice(5,7)/3):4;
+ const ini=s=>esc((s||'?').replace(/^Pos\s+/,'').slice(0,2).toUpperCase());
+ $('#main').innerHTML=`<div class="dash"><div>
+ <div class="dhead"><h2>Papan Utama</h2>
+  <div class="chips">${thn===now?chip('bulan','Bulan Ini'):''}${chip('s1','S1')}${chip('s2','S2')}${chip('s3','S3')}${chip('s4','S4')}${chip('tahun','Setahun')}</div>
+  <select onchange="setDash('thn',this.value)" title="Tahun">${tahunAda.map(y=>`<option${y===thn?' selected':''}>${y}</option>`).join('')}</select>
  </div>
- <div class="card"><h2>Surat Keluar Terkini</h2>${baru.length?`<div class="tbl-wrap"><table><thead><tr><th>Tarikh Hantar</th><th>No. Rujukan</th><th>Penerima</th><th>Perkara</th><th>Kaedah</th><th class="num">Kos (RM)</th></tr></thead><tbody>
- ${baru.map(s=>`<tr style="cursor:pointer" onclick="openForm('keluar','${s.id}')"><td>${fmt(s.tarikhHantar)}</td><td>${esc(s.noRuj)}</td><td>${esc(s.penerima)}</td><td>${esc(s.perkara)}</td><td>${esc(s.kaedah)}</td><td class="num">${kosTxt(s)}</td></tr>`).join('')}
- </tbody></table></div>`:'<div class="empty">Belum ada surat keluar didaftarkan.</div>'}</div>`;
+ <div class="dstats">
+  <div class="ds utama"><span>Surat keluar</span><b>${r.length}</b><small>${esc(labelTempoh(p,thn))}</small>${chg(r.length,rL.length,lp.lbl)}</div>
+  <div class="ds"><span>Kelompok</span><b>${kel}</b><small>${esc(labelTempoh(p,thn))}</small></div>
+  <div class="ds"><span>Kos pos</span><b style="font-size:21px">${rmK(kos)}</b><small>${esc(labelTempoh(p,thn))}</small>${chg(kos,kosL,lp.lbl)}</div>
+  <div class="ds"><span>Purata kos sesurat</span><b style="font-size:21px">${rmK(r.length?kos/r.length:0)}</b><small>${r.length} surat</small></div>
+ </div>
+ <div class="card chart"><div class="ctitle"><div><h2>Statistik ${thn}</h2><span class="mut">Bilangan surat &amp; kos pos setiap bulan · tempoh dipilih ditanda</span></div>
+  <span class="leg"><i style="background:#ff4b55;box-shadow:0 0 8px #ff4b55"></i>Bilangan surat</span><span class="leg"><i style="background:#d8cfd0"></i>Kos pos (RM)</span></div>
+  ${grafTahun(thn,data,a,b)}</div>
+ <div class="drow">
+  <div class="card"><div class="ctitle"><h2>Ringkasan Suku Tahun ${thn}</h2><button class="btn sec sm" onclick="cetakRingkasanSuku(${sqCetak},'${thn}')" title="Cetak ringkasan Suku ${sqCetak} ${thn}">🖨 Cetak S${sqCetak}</button></div><div class="sq">
+  ${SUKU.map(([s,e],q)=>{const d=data.slice(s-1,e),n=d.reduce((x,y)=>x+y.n,0),k=d.reduce((x,y)=>x+y.kos,0);
+   return `<button class="${p==='s'+(q+1)?'on':''}" onclick="setDash('p','s${q+1}')"><span class="h"><b>Suku ${q+1}</b>${BLN3[s-1]}–${BLN3[e-1]}</span>
+   <span class="v"><span><strong>${n}</strong><small>surat · ${rmK(k)}</small></span><span class="mb">${d.map((m,i)=>`<i style="height:${Math.max(6,m.n/mxSq*100)}%" title="${BULAN[s-1+i]}: ${m.n} surat"></i>`).join('')}</span></span></button>`;}).join('')}
+  </div></div>
+  <div class="card"><div class="ctitle"><h2>Kaedah Penghantaran</h2><span class="mut">${esc(labelTempoh(p,thn))}</span></div>
+  ${kd.length?kd.map(([k,o])=>`<div class="kb"><span>${esc(k)}</span><span class="bar2"><i style="width:${o.n/mxKd*100}%"></i></span><em>${o.n} · ${rmK(o.kos)}</em></div>`).join(''):'<div class="empty">Tiada surat dalam tempoh ini.</div>'}
+  </div>
+ </div></div>
+ <div class="card rpanel">
+  <div class="prof"><div class="av"><svg viewBox="0 0 40 24" aria-hidden="true"><path d="M2,6 L33,8 C35,11 37,16 38,20 C26,23 10,22 2,6Z" fill="#e9e6ea"/><circle cx="20" cy="13" r="6.5" fill="#e3343f"/><circle cx="20" cy="13" r="2" fill="#120000"/><path d="M2,6 L33,8 L34,10 L3,8Z" fill="#8f8b96"/></svg></div>
+   <b>${esc(tetapan.org)}</b><span>POS PERZIM · Daftar Surat Keluar</span></div>
+  <div class="acts">
+   <button onclick="openForm('keluar')"><i><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></i>Daftar Surat</button>
+   <button onclick="openKelompok()"><i><svg viewBox="0 0 24 24"><path d="M21 8l-9-5-9 5 9 5 9-5z"/><path d="M3 8v8l9 5 9-5V8M12 13v8"/></svg></i>Kelompok</button>
+   <button onclick="cetakLampiranA(cache.filter(s=>s.jenis==='keluar'&&s.tarikhHantar===today()).sort((a,b)=>a.dibuat-b.dibuat))" title="Cetak Lampiran A bagi surat hari ini"><i><svg viewBox="0 0 24 24"><path d="M6 9V3h12v6M6 18H4v-7a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v7h-2"/><rect x="6" y="14" width="12" height="7"/></svg></i>Lampiran A</button>
+   <button onclick="eksportJSON()" title="Muat turun sandaran"><i><svg viewBox="0 0 24 24"><path d="M12 3v12M7 10l5 5 5-5M4 21h16"/></svg></i>Sandaran</button>
+  </div>
+  <div class="kad"><span class="chip"></span><span class="k1">KOS POS TAHUN ${thn}</span><span class="k2">${rmK(sumKos(kThn))}</span><span class="k3">${kThn.length} surat dihantar</span>
+   <div class="k4"><b>POS PERZIM</b><span>Sandaran: ${bk}</span></div></div>
+  <div class="txh"><h2>Surat Terkini</h2><a onclick="goTab('keluar')">Lihat semua →</a></div>
+  ${baru.length?baru.map(s=>`<div class="tx" onclick="openForm('keluar','${s.id}')"><span class="ic">${ini(s.kaedah)}</span><span class="tt"><b>${esc(s.penerima||'-')}</b><span>${fmt(s.tarikhHantar)} · ${esc(s.noRuj||s.kaedah||'')}</span></span>${s.kos!==''&&s.kos!=null&&!isNaN(+s.kos)?`<span class="km">${rmK(s.kos)}</span>`:''}</div>`).join(''):'<div class="empty">Belum ada surat keluar.</div>'}
+ </div></div>`;
 }
 
 /* ---------- Senarai ---------- */
@@ -597,19 +914,21 @@ function cetakSlip(id){
 function renderLaporan(){
  $('#main').innerHTML=`<div class="card"><h2>Laporan / Senarai Penghantaran Pos</h2><div class="bar">
  <input type="hidden" id="rJenis" value="keluar">
- <select id="rMod"><option value="harian">Harian</option><option value="bulanan" selected>Bulanan</option><option value="julat">Julat Tarikh</option></select>
+ <select id="rMod"><option value="harian">Harian</option><option value="bulanan" selected>Bulanan</option><option value="suku">Suku Tahun</option><option value="julat">Julat Tarikh</option></select>
  <input type="date" id="rTarikh" value="${today()}"><input type="month" id="rBulan" value="${today().slice(0,7)}">
+ <span id="rSuku"><select id="rSq">${SUKU.map(([a,b],q)=>`<option value="${q+1}"${Math.ceil(+today().slice(5,7)/3)===q+1?' selected':''}>Suku ${q+1} (${BULAN[a-1]} – ${BULAN[b-1]})</option>`).join('')}</select> <input type="number" id="rThn" value="${today().slice(0,4)}" min="2000" max="2100" style="width:90px" title="Tahun"> <button class="btn sec" onclick="cetakRingkasanSuku($('#rSq').value,$('#rThn').value)" title="Ringkasan satu muka surat ikut bulan dan kaedah">🖨 Cetak Ringkasan Suku</button></span>
  <span id="rJulat"><input type="date" id="rDari"> hingga <input type="date" id="rHingga" value="${today()}"></span>
  <button class="btn" onclick="janaLaporan()">Jana</button><button class="btn sec" onclick="!lastReport?toast('Jana laporan dahulu'):!lastBil?toast('Tiada surat dalam tempoh ini'):cetak(lastReport,true)">Cetak / PDF</button>
  <button class="btn sec" onclick="lastKos?cetak(lastKos):toast('Jana laporan dahulu')" title="Laporan kos pos setiap surat dan jumlah, untuk semakan kewangan">Cetak Laporan Kos Pos</button>
  </div></div><div class="card" id="rOut"><div class="empty">Pilih tempoh dan tekan Jana.</div></div>`;
- const mod=()=>{const m=$('#rMod').value;$('#rTarikh').classList.toggle('hidden',m!=='harian');$('#rBulan').classList.toggle('hidden',m!=='bulanan');$('#rJulat').classList.toggle('hidden',m!=='julat');};
+ const mod=()=>{const m=$('#rMod').value;$('#rTarikh').classList.toggle('hidden',m!=='harian');$('#rBulan').classList.toggle('hidden',m!=='bulanan');$('#rSuku').classList.toggle('hidden',m!=='suku');$('#rJulat').classList.toggle('hidden',m!=='julat');};
  $('#rMod').addEventListener('change',mod);mod();lastReport='';lastKos='';lastBil=0;
 }
 function janaLaporan(){
  const j=$('#rJenis').value,m=$('#rMod').value;let dari,hingga,label;
  if(m==='harian'){dari=hingga=$('#rTarikh').value;label='Tarikh: '+fmt(dari);}
  else if(m==='bulanan'){const b=$('#rBulan').value;if(b){dari=b+'-01';hingga=b+'-31';}label='Bulan: '+namaBulan(b);}
+ else if(m==='suku'){const q=+$('#rSq').value,y=$('#rThn').value,[a,b]=SUKU[q-1];if(/^\d{4}$/.test(y)){dari=`${y}-${String(a).padStart(2,'0')}-01`;hingga=`${y}-${String(b).padStart(2,'0')}-31`;}label=`Suku ${q} (${BULAN[a-1]} – ${BULAN[b-1]}) ${y}`;}
  else{dari=$('#rDari').value;hingga=$('#rHingga').value;label=`Tempoh: ${fmt(dari)} hingga ${fmt(hingga)}`;}
  if(!dari||!hingga){toast('Sila pilih tarikh');return;}
  const key=j==='masuk'?'tarikhTerima':'tarikhHantar';
@@ -726,64 +1045,78 @@ function sha256(str){
 const hashPw=p=>sha256('DSP|'+p);
 const hashJwp=j=>sha256('DSJ|'+j.trim().toLowerCase().replace(/\s+/g,' '));
 const pwSemasa=()=>tetapan.pwHash||'';
+/* Kotak kaca skrin kunci */
+const IK={kunci:'<svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>',
+ kunci2:'<svg viewBox="0 0 24 24"><circle cx="8" cy="15" r="4"/><path d="M11 12l9-9M17 6l3 3M15 8l2 2"/></svg>',
+ soal:'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .9-1 1.7M12 17h.01"/></svg>',
+ mata:'<svg viewBox="0 0 24 24"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>',
+ perisai:'<svg viewBox="0 0 24 24"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/></svg>'};
+function kotakKunci(isi){return `<div class="lockbox"><i class="lk-c1"></i><i class="lk-c2"></i><div class="lk-isi">${isi}</div><div class="lk-spin"><i></i><i></i></div></div>`;}
+function medan(id,jenis,ph,ikon,ac,lbl){return `${lbl?`<label class="lk-lbl" for="${id}">${lbl}</label>`:''}<div class="lk-f">${IK[ikon]}<input type="${jenis}" id="${id}" placeholder="${ph}" autocomplete="${ac}"${jenis==='password'?' style="padding-right:38px"':''}>${jenis==='password'?`<button type="button" class="lk-mata" title="Tunjuk / sorok" onclick="const i=this.previousElementSibling;i.type=i.type==='password'?'text':'password'">${IK.mata}</button>`:''}</div>`;}
+const kakiKunci='<div class="lk-kaki mut">&copy; 2026 Abu Hanifah bin Rozali</div>';
+// Animasi tukar kandungan kotak (ikon berpusing seperti video)
+function kunciTukar(fn){
+ const b=$('#lock .lockbox');if(!b){fn();return;}
+ b.classList.add('tukar');
+ setTimeout(()=>{fn();const n=$('#lock .lockbox');if(!n)return;n.classList.add('tukar');n.style.animation='none';requestAnimationFrame(()=>requestAnimationFrame(()=>n.classList.remove('tukar')));},520);
+}
+function kunciSalah(msg){$('#pwErr').textContent=msg;const b=$('#lock .lockbox');b.classList.remove('goyang');b.style.animation='';void b.offsetWidth;b.classList.add('goyang');}
 function tunjukKunci(){
  formState=null;$('#modal').classList.add('hidden');$('#main').innerHTML='';
  const L=$('#lock');L.classList.remove('hidden');
  if(!tetapan.pwHash){tunjukPersediaan();return;}
- L.innerHTML=`<div class="lockbox"><h2>Sistem Daftar Surat</h2><p class="mut">${esc(tetapan.org)}</p>
- <form onsubmit="return bukaKunci(event)"><input type="password" id="pwIn" placeholder="Kata laluan" autocomplete="current-password" style="width:100%">
- <div id="pwErr" class="err"></div><button class="btn" style="width:100%;margin-top:10px">Masuk</button></form>
- <p style="margin-top:14px"><a href="#" onclick="lupaPw();return false">Lupa kata laluan?</a></p>
- <p class="mut" style="margin-top:20px">&copy; 2026 Abu Hanifah bin Rozali</p></div>`;
+ L.innerHTML=kotakKunci(`<div class="lk-ikon">${IK.kunci}</div><h2>Selamat Kembali</h2><p class="mut">${esc(tetapan.org)} · Sistem Daftar Surat</p>
+ <form onsubmit="return bukaKunci(event)">${medan('pwIn','password','Masukkan kata laluan','kunci2','current-password','Kata Laluan')}
+ <div id="pwErr" class="err"></div><button class="btn">Masuk &rarr;</button></form>
+ <p style="margin-top:14px;text-align:center"><a href="#" onclick="kunciTukar(lupaPw);return false">Lupa kata laluan?</a></p>${kakiKunci}`);
  setTimeout(()=>$('#pwIn')?.focus(),50);
 }
 async function bukaKunci(e){
  e.preventDefault();
- if(!pwSemasa()||hashPw($('#pwIn').value)!==pwSemasa()){$('#pwErr').textContent='Kata laluan salah.';$('#pwIn').select();return false;}
+ if(!pwSemasa()||hashPw($('#pwIn').value)!==pwSemasa()){kunciSalah('Kata laluan salah.');$('#pwIn').select();return false;}
  $('#lock').classList.add('hidden');$('#lock').innerHTML='';
  await loadCache();render();return false;
 }
 function lupaPw(){
- const L=$('#lock .lockbox');
+ const L=$('#lock .lk-isi');
  if(!tetapan.soalan||!tetapan.jawapanHash){
-  L.innerHTML=`<h2>Lupa Kata Laluan</h2><p>Soalan keselamatan belum ditetapkan, jadi kata laluan tidak boleh ditukar dari sini.</p>
-  <p class="mut">Hubungi pembangun sistem (Abu Hanifah bin Rozali) untuk bantuan.</p><button class="btn sec" onclick="tunjukKunci()">Kembali</button>`;return;}
- L.innerHTML=`<h2>Lupa Kata Laluan</h2><form onsubmit="return resetPw(event)">
- <p><b>${esc(tetapan.soalan)}</b></p><input id="jwpIn" placeholder="Jawapan" style="width:100%" autocomplete="off">
- <input type="password" id="pwB1" placeholder="Kata laluan baru" style="width:100%;margin-top:8px" autocomplete="new-password">
- <input type="password" id="pwB2" placeholder="Ulang kata laluan baru" style="width:100%;margin-top:8px" autocomplete="new-password">
- <div id="pwErr" class="err"></div><button class="btn" style="width:100%;margin-top:10px">Tetapkan Kata Laluan Baru</button></form>
- <p style="margin-top:12px"><a href="#" onclick="tunjukKunci();return false">Kembali</a></p>`;
+  L.innerHTML=`<div class="lk-ikon">${IK.soal}</div><h2>Lupa Kata Laluan</h2><p>Soalan keselamatan belum ditetapkan, jadi kata laluan tidak boleh ditukar dari sini.</p>
+  <p class="mut">Hubungi pembangun sistem (Abu Hanifah bin Rozali) untuk bantuan.</p><button class="btn sec" onclick="kunciTukar(tunjukKunci)">&larr; Kembali</button>${kakiKunci}`;return;}
+ L.innerHTML=`<div class="lk-ikon">${IK.soal}</div><h2>Lupa Kata Laluan</h2><p class="mut">Jawab soalan keselamatan untuk menetapkan kata laluan baru.</p><form onsubmit="return resetPw(event)">
+ <label class="lk-lbl" for="jwpIn"><b style="color:#fff">${esc(tetapan.soalan)}</b></label><div class="lk-f">${IK.soal}<input id="jwpIn" placeholder="Jawapan" autocomplete="off"></div>
+ ${medan('pwB1','password','Kata laluan baru','kunci2','new-password','Kata Laluan Baru')}
+ <div style="margin-top:8px">${medan('pwB2','password','Ulang kata laluan baru','kunci2','new-password')}</div>
+ <div id="pwErr" class="err"></div><button class="btn">Tetapkan Kata Laluan Baru</button></form>
+ <p style="margin-top:14px;text-align:center"><a href="#" onclick="kunciTukar(tunjukKunci);return false">&larr; Kembali ke log masuk</a></p>${kakiKunci}`;
  setTimeout(()=>$('#jwpIn')?.focus(),50);
 }
 /* Kali pertama digunakan: pengguna tetapkan kata laluan & soalan keselamatan sendiri */
 function tunjukPersediaan(){
  const L=$('#lock');
- L.innerHTML=`<div class="lockbox"><h2>Selamat Datang</h2><p class="mut">${esc(tetapan.org)}</p>
- <p>Tetapkan kata laluan dan soalan keselamatan untuk sistem ini.</p>
+ L.innerHTML=kotakKunci(`<div class="lk-ikon">${IK.perisai}</div><h2>Selamat Datang</h2><p class="mut">${esc(tetapan.org)}</p>
+ <p style="font-size:13px">Tetapkan kata laluan dan soalan keselamatan untuk sistem ini.</p>
  <form onsubmit="return simpanPersediaan(event)">
- <input type="password" id="spP1" placeholder="Kata laluan baru" style="width:100%" autocomplete="new-password">
- <input type="password" id="spP2" placeholder="Ulang kata laluan" style="width:100%;margin-top:8px" autocomplete="new-password">
- <input id="spSoalan" placeholder="Soalan keselamatan (cth: Nama sekolah rendah saya?)" style="width:100%;margin-top:14px">
- <input id="spJawapan" placeholder="Jawapan" style="width:100%;margin-top:8px" autocomplete="off">
- <div id="pwErr" class="err"></div><button class="btn" style="width:100%;margin-top:10px">Simpan &amp; Masuk</button></form>
- <p class="mut" style="margin-top:12px">Ada sandaran (.json) dari versi lama? Masuk dahulu, kemudian pergi ke Tetapan &amp; Sandaran → Pulihkan. Kata laluan yang anda tetapkan di sini akan kekal.</p>
- <p class="mut" style="margin-top:14px">&copy; 2026 Abu Hanifah bin Rozali</p></div>`;
+ ${medan('spP1','password','Kata laluan baru','kunci2','new-password','Kata Laluan')}
+ <div style="margin-top:8px">${medan('spP2','password','Ulang kata laluan','kunci2','new-password')}</div>
+ ${medan('spSoalan','text','cth: Nama sekolah rendah saya?','soal','off','Soalan Keselamatan')}
+ <div style="margin-top:8px">${medan('spJawapan','text','Jawapan','kunci2','off')}</div>
+ <div id="pwErr" class="err"></div><button class="btn">Simpan &amp; Masuk &rarr;</button></form>
+ <p class="mut" style="margin-top:12px;font-size:11.5px">Ada sandaran (.json) dari versi lama? Masuk dahulu, kemudian pergi ke Tetapan &amp; Sandaran → Pulihkan. Kata laluan yang anda tetapkan di sini akan kekal.</p>${kakiKunci}`);
  setTimeout(()=>$('#spP1')?.focus(),50);
 }
 async function simpanPersediaan(e){
  e.preventDefault();const err=$('#pwErr'),p=$('#spP1').value,s=$('#spSoalan').value.trim(),j=$('#spJawapan').value;
- if(p.length<4){err.textContent='Kata laluan sekurang-kurangnya 4 aksara.';return false;}
- if(p!==$('#spP2').value){err.textContent='Kata laluan tidak sama.';return false;}
- if(!s||!j.trim()){err.textContent='Sila isi soalan dan jawapan keselamatan.';return false;}
+ if(p.length<4){kunciSalah('Kata laluan sekurang-kurangnya 4 aksara.');return false;}
+ if(p!==$('#spP2').value){kunciSalah('Kata laluan tidak sama.');return false;}
+ if(!s||!j.trim()){kunciSalah('Sila isi soalan dan jawapan keselamatan.');return false;}
  tetapan.pwHash=hashPw(p);tetapan.soalan=s;tetapan.jawapanHash=hashJwp(j);await saveTetapan();
  $('#lock').classList.add('hidden');$('#lock').innerHTML='';await loadCache();render();toast('Kata laluan disimpan');return false;
 }
 async function resetPw(e){
  e.preventDefault();const err=$('#pwErr');
- if(hashJwp($('#jwpIn').value)!==tetapan.jawapanHash){err.textContent='Jawapan salah.';return false;}
- const p=$('#pwB1').value;if(p.length<4){err.textContent='Kata laluan sekurang-kurangnya 4 aksara.';return false;}
- if(p!==$('#pwB2').value){err.textContent='Kata laluan tidak sama.';return false;}
+ if(hashJwp($('#jwpIn').value)!==tetapan.jawapanHash){kunciSalah('Jawapan salah.');return false;}
+ const p=$('#pwB1').value;if(p.length<4){kunciSalah('Kata laluan sekurang-kurangnya 4 aksara.');return false;}
+ if(p!==$('#pwB2').value){kunciSalah('Kata laluan tidak sama.');return false;}
  tetapan.pwHash=hashPw(p);await saveTetapan();alert('Kata laluan baru telah ditetapkan. Sila log masuk.');tunjukKunci();return false;
 }
 async function tukarPw(){
