@@ -293,7 +293,8 @@ tr.lewat td{background:rgba(255,92,99,.12)!important}
 .lockbox.goyang{animation:lkGoyang .35s}
 @keyframes lkGoyang{25%{transform:translateX(-7px)}75%{transform:translateX(7px)}}
 @media print{
- body{background:#fff;color:#000}
+ body{background:#fff;color:#000;min-height:0}
+ html{background:#fff}
  body::before{display:none}
  #app{margin:0}
 }
@@ -561,7 +562,7 @@ function cetakRingkasanSuku(q,thn){
  <tr><td>Purata kos sesurat (RM)</td><td class="num">${(rp.length?jumP/rp.length:0).toFixed(2)}</td><td class="num">${(r.length?jum/r.length:0).toFixed(2)}</td></tr></tbody></table>
  <table style="margin-top:34px;border:0"><tr>
  <td style="border:0;width:50%;padding-right:30px"><b>Disediakan oleh:</b><br><br><br>.......................................................<br>Nama:<br>Jawatan:<br>Tarikh:</td>
- <td style="border:0;width:50%"><b>Disemak oleh:</b><br><br><br>.......................................................<br>Nama:<br>Jawatan:<br>Tarikh:</td></tr></table>
+ <td style="border:0;width:50%"><b>Disemak oleh:</b><br><br><br>.......................................................<br>Nama: ${esc(tetapan.penyemak||'')}<br>Jawatan:<br>Tarikh:</td></tr></table>
  <p style="font-size:11px;margin-top:18px">Dicetak pada ${fmt(today())}</p>
  <div class="cetak-hc">Sistem Daftar Surat &copy; 2026 Abu Hanifah bin Rozali. Hak cipta terpelihara.</div></div>`;
  cetak(html,true);
@@ -866,11 +867,11 @@ function htmlLampiranA(r){
  const sah=(t,nama)=>`<div><b>${t}</b><div class="baris"><span>Nama:</span><i>${nama||''}</i></div><div class="baris"><span>Tarikh:</span><i></i></div><div class="baris ttg"><span>Tandatangan:</span><i></i></div></div>`;
  return `<div class="lampA">
  <div class="la-tajuk"><div class="t1">LAMPIRAN A</div><div class="t2">SENARAI PENGHANTARAN POS</div><div class="t3">${esc((tetapan.org||'Perbadanan Muzium Melaka').toUpperCase())}</div></div>
- <div class="la-info">${f('Tarikh Penghantaran',isi(fmt(tHantar)))}${f('Nama Penghantar',isi(pgh))}${f('Bahagian',isi(bhg))}${f('Disemak oleh','')}</div>
+ <div class="la-info">${f('Tarikh Penghantaran',isi(fmt(tHantar)))}${f('Nama Penghantar',isi(pgh))}${f('Bahagian',isi(bhg))}${f('Disemak oleh',isi(tetapan.penyemak))}</div>
  <table class="la-jadual"><colgroup><col style="width:6.6%"><col style="width:19.9%"><col style="width:40.3%"><col style="width:16.6%"><col style="width:16.6%"></colgroup>
  <thead><tr><th>Bil.</th><th>No. Rujukan</th><th>Nama &amp; Alamat Penerima</th><th>Jenis Pos</th><th>Catatan</th></tr></thead>
  <tbody>${baris}${kosong}</tbody></table>
- <div class="la-sah">${sah('Disediakan oleh:',isi(pgh))}${sah('Disemak oleh:')}</div></div>`;
+ <div class="la-sah">${sah('Disediakan oleh:',isi(pgh))}${sah('Disemak oleh:',isi(tetapan.penyemak))}</div></div>`;
 }
 function cetakLampiranA(r){if(!r||!r.length){toast('Tiada surat untuk dicetak');return;}cetak(htmlLampiranA(r),true);}
 function cetakLampiranAKelompok(kid){cetakLampiranA(ahliKelompok(kid));}
@@ -981,6 +982,7 @@ function renderTetapan(){
  <label class="full">Nama Organisasi (untuk kepala laporan)<input id="tOrg" value="${esc(tetapan.org)}"></label>
  <label class="full">Senarai Nama Penghantar (satu nama setiap baris)<textarea id="tPgh" rows="5" placeholder="cth: Abu Hanifah bin Rozali">${esc((tetapan.penghantar||[]).join('\n'))}</textarea></label>
  <label class="full">Bahagian Lalai (terisi automatik semasa daftar surat keluar)<input id="tBhgLalai" placeholder="cth: Bahagian Permuziuman" value="${esc(tetapan.bahagianLalai||'')}"></label>
+ <label class="full">Nama Penyemak ("Disemak oleh" dalam Lampiran A &amp; Ringkasan Suku Tahun)<input id="tPenyemak" placeholder="cth: Siti Aminah binti Ahmad" value="${esc(tetapan.penyemak||'')}"></label>
  <label class="full">Senarai Bahagian / Pegawai (pilihan untuk Bahagian dan Agih Kepada, satu setiap baris)<textarea id="tBhg" rows="6">${esc(tetapan.bahagian.join('\n'))}</textarea></label></div>
  <div class="mfoot"><button class="btn" onclick="simpanTetapan()">Simpan Tetapan</button></div></div>
  <div class="card"><h2>Sandaran &amp; Pemulihan</h2>
@@ -1002,7 +1004,7 @@ function renderTetapan(){
   <div class="mfoot"><button class="btn" onclick="simpanSoalan()">Simpan Soalan Keselamatan</button></div></div>
  <div class="card"><h3>Zon Bahaya</h3><button class="btn del" onclick="padamSemua()">Padam Semua Data</button></div>`;
 }
-async function simpanTetapan(){tetapan.org=$('#tOrg').value.trim()||'Perbadanan Muzium Melaka';tetapan.bahagian=$('#tBhg').value.split('\n').map(x=>x.trim()).filter(Boolean);tetapan.penghantar=$('#tPgh').value.split('\n').map(x=>x.trim()).filter(Boolean);tetapan.bahagianLalai=$('#tBhgLalai').value.trim();await saveTetapan();toast('Tetapan disimpan');}
+async function simpanTetapan(){tetapan.org=$('#tOrg').value.trim()||'Perbadanan Muzium Melaka';tetapan.bahagian=$('#tBhg').value.split('\n').map(x=>x.trim()).filter(Boolean);tetapan.penghantar=$('#tPgh').value.split('\n').map(x=>x.trim()).filter(Boolean);tetapan.bahagianLalai=$('#tBhgLalai').value.trim();tetapan.penyemak=$('#tPenyemak').value.trim();await saveTetapan();toast('Tetapan disimpan');}
 async function eksportJSON(){
  toast('Menyediakan sandaran...');
  const fail=await getAll('fail'),out=[];
